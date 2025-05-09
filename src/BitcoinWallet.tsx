@@ -1,6 +1,8 @@
 import React, { useState } from "react";
+import { GenerateSeedLogic } from "./GenerateSeedLogic";
 
-const xpub = "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiKp7rTtqA1Yy..."; // Placeholder
+const seedLogic = new GenerateSeedLogic();
+const xpub = seedLogic.getSeedHex();
 
 export default function BitcoinWallet() {
   const [copied, setCopied] = useState(false);
@@ -15,7 +17,7 @@ export default function BitcoinWallet() {
     <div style={{
       minHeight: "100vh",
       background: "#181406",
-      color: "#FFA500",
+      color: "#F98029",
       fontFamily: "'Cinzel', serif",
       display: "flex",
       flexDirection: "column",
@@ -35,7 +37,7 @@ export default function BitcoinWallet() {
           maxHeight: 270,
           marginBottom: 12,
           borderRadius: 12,
-          boxShadow: "0 0 24px #FFA50033",
+          boxShadow: "0 0 24px #F9802933",
         }}
       />
       {/* xpub display with copy button */}
@@ -46,7 +48,7 @@ export default function BitcoinWallet() {
         borderRadius: 8,
         padding: "8px 8px 8px 16px",
         marginBottom: 32,
-        boxShadow: "0 0 8px #FFA50055",
+        boxShadow: "0 0 8px #F9802955",
         fontFamily: "monospace",
         maxWidth: 420,
         width: "90%",
@@ -58,7 +60,7 @@ export default function BitcoinWallet() {
             overflowX: "auto",
             whiteSpace: "nowrap",
             flex: 1,
-            color: "#FFA500",
+            color: "#F98029",
           }}
           title={xpub}
         >
@@ -74,22 +76,22 @@ export default function BitcoinWallet() {
             padding: 4,
             display: "flex",
             alignItems: "center",
-            color: "#FFA500",
+            color: "#F98029",
           }}
           aria-label="Copy xpub"
         >
           {/* Copy icon (SVG) */}
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="9" y="9" width="13" height="13" rx="2" />
             <path d="M5 15V5a2 2 0 0 1 2-2h10" />
           </svg>
         </button>
         {copied && (
           <span style={{
-            color: "#FFA500",
+            color: "#F98029",
             fontSize: 12,
             marginLeft: 8,
-            textShadow: "0 0 6px #FFA50099",
+            textShadow: "0 0 6px #F9802999",
             transition: "opacity 0.2s",
           }}>
             Copied!
@@ -104,9 +106,9 @@ export default function BitcoinWallet() {
         {/* Send Button */}
         <button style={{
           background: "#181406",
-          border: "2px solid #FFA500",
+          border: "2px solid #F98029",
           borderRadius: 16,
-          color: "#FFA500",
+          color: "#F98029",
           width: 100,
           height: 100,
           display: "flex",
@@ -115,12 +117,12 @@ export default function BitcoinWallet() {
           justifyContent: "center",
           fontSize: 18,
           fontWeight: 600,
-          boxShadow: "0 0 12px #FFA50033",
+          boxShadow: "0 0 12px #F9802933",
           cursor: "pointer",
           transition: "background 0.2s, box-shadow 0.2s",
         }}>
           {/* Send Icon (SVG) */}
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
             <path d="M22 2L11 13" />
             <path d="M22 2L15 22L11 13L2 9L22 2Z" />
           </svg>
@@ -129,9 +131,9 @@ export default function BitcoinWallet() {
         {/* Receive Button */}
         <button style={{
           background: "#181406",
-          border: "2px solid #FFA500",
+          border: "2px solid #F98029",
           borderRadius: 16,
-          color: "#FFA500",
+          color: "#F98029",
           width: 100,
           height: 100,
           display: "flex",
@@ -140,12 +142,12 @@ export default function BitcoinWallet() {
           justifyContent: "center",
           fontSize: 18,
           fontWeight: 600,
-          boxShadow: "0 0 12px #FFA50033",
+          boxShadow: "0 0 12px #F9802933",
           cursor: "pointer",
           transition: "background 0.2s, box-shadow 0.2s",
         }}>
           {/* Receive Icon (SVG) */}
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
             <path d="M12 19V5" />
             <path d="M5 12l7 7 7-7" />
           </svg>
