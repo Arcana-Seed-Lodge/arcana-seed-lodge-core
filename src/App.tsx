@@ -1,19 +1,24 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/tauri";
+
 import "./App.css";
 import BitcoinWallet from "./BitcoinWallet";
+import Map from 'react-map-gl/maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
+// import * as mapStyle from './osm-bright.json';
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+export default function App() {
 
-  async function greet() {
-    // Learn more about Tauri commands at https://v1.tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
-  }
-
-  return <BitcoinWallet />;
+  return (
+    <>
+      <BitcoinWallet />
+      <Map
+        initialViewState={{
+        longitude: -122.4,
+        latitude: 37.8,
+        zoom: 14
+      }}
+      style={{width: '100vw', height: '50vh'}}
+      mapStyle="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json"
+    />
+    </>
+  );
 }
-
-export default App;
