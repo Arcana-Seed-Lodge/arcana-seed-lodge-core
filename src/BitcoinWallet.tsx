@@ -1,8 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 
 const xpub = "xpub6CUGRUonZSQ4TWtTMmzXdrXDtypWKiKp7rTtqA1Yy..."; // Placeholder
 
 export default function BitcoinWallet() {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(xpub);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -13,31 +21,80 @@ export default function BitcoinWallet() {
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "flex-start",
-      paddingTop: 60,
+      paddingTop: 40,
       letterSpacing: 1.5,
     }}>
-      {/* Google Fonts link for Cinzel */}
-      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
-      <h1 style={{
-        fontSize: 48,
-        fontWeight: 700,
-        textShadow: "0 0 8px #FFA500, 0 0 24px #FFA50055",
-        marginBottom: 8,
-        letterSpacing: 2,
-      }}>
-        ARCANA SEED LODGE
-      </h1>
+      {/* Logo instead of title */}
+      <img
+        src="/arcana-logo.jpeg"
+        alt="Arcana Seed Lodge Logo"
+        style={{
+          width: "auto",
+          maxWidth: 480,
+          height: "auto",
+          maxHeight: 270,
+          marginBottom: 12,
+          borderRadius: 12,
+          boxShadow: "0 0 24px #FFA50033",
+        }}
+      />
+      {/* xpub display with copy button */}
       <div style={{
-        fontSize: 14,
+        display: "flex",
+        alignItems: "center",
         background: "#1a1200",
         borderRadius: 8,
-        padding: "8px 16px",
+        padding: "8px 8px 8px 16px",
         marginBottom: 32,
         boxShadow: "0 0 8px #FFA50055",
         fontFamily: "monospace",
-        wordBreak: "break-all",
+        maxWidth: 420,
+        width: "90%",
+        overflow: "hidden",
       }}>
-        {xpub}
+        <div
+          style={{
+            fontSize: 14,
+            overflowX: "auto",
+            whiteSpace: "nowrap",
+            flex: 1,
+            color: "#FFA500",
+          }}
+          title={xpub}
+        >
+          {xpub}
+        </div>
+        <button
+          onClick={handleCopy}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            marginLeft: 8,
+            padding: 4,
+            display: "flex",
+            alignItems: "center",
+            color: "#FFA500",
+          }}
+          aria-label="Copy xpub"
+        >
+          {/* Copy icon (SVG) */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFA500" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" />
+            <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+          </svg>
+        </button>
+        {copied && (
+          <span style={{
+            color: "#FFA500",
+            fontSize: 12,
+            marginLeft: 8,
+            textShadow: "0 0 6px #FFA50099",
+            transition: "opacity 0.2s",
+          }}>
+            Copied!
+          </span>
+        )}
       </div>
       <div style={{
         display: "flex",
