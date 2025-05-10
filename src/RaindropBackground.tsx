@@ -8,7 +8,11 @@ function getRandom(min: number, max: number) {
   return Math.random() * (max - min) + min;
 }
 
-export default function RaindropBackground() {
+interface RaindropBackgroundProps {
+  rainEndVh?: number; // vertical endpoint in vh
+}
+
+export default function RaindropBackground({ rainEndVh = 85 }: RaindropBackgroundProps) {
   // To cover the screen at an angle, allow drops to start off-screen left and end off-screen right
   // The horizontal travel is tan(angle) * vertical travel
   // For 100vh vertical, horizontal = tan(30deg) * 100vh ≈ 0.577 * 100vh ≈ 58vw
@@ -29,6 +33,8 @@ export default function RaindropBackground() {
     const delay = getRandom(0, 2.5); // seconds
     const thickness = getRandom(1, 2.2); // px
     const opacity = getRandom(0.12, 0.22); // subtle, layered look
+    // Each drop gets a unique animation name to allow custom endpoint
+    const animName = `raindrop-fall-angled-${i}`;
     return (
       <span
         key={i}
@@ -43,10 +49,18 @@ export default function RaindropBackground() {
           borderRadius: thickness,
           filter: "blur(0.5px)",
           transform: `rotate(${ANGLE_DEGREES}deg)`,
-          animation: `raindrop-fall-angled ${duration}s linear ${delay}s infinite`,
+          animation: `${animName} ${duration}s linear ${delay}s infinite`,
           zIndex: 0,
         }}
-      />
+      >
+        <style>{`
+          @keyframes ${animName} {
+            0% { transform: translate(0, -10vh) rotate(${ANGLE_DEGREES}deg); opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(58vw, ${rainEndVh}vh) rotate(${ANGLE_DEGREES}deg); opacity: 0; }
+          }
+        `}</style>
+      </span>
     );
   });
 
@@ -63,13 +77,6 @@ export default function RaindropBackground() {
         zIndex: 0,
       }}
     >
-      <style>{`
-        @keyframes raindrop-fall-angled {
-          0% { transform: translate(0, -10vh) rotate(${ANGLE_DEGREES}deg); opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translate(58vw, 85vh) rotate(${ANGLE_DEGREES}deg); opacity: 0; }
-        }
-      `}</style>
       {drops}
     </div>
   );

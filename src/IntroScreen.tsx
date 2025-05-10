@@ -8,6 +8,9 @@ type IntroScreenProps = {
 };
 
 export default function IntroScreen({ onSkip }: IntroScreenProps) {
+  // Height of the background image in vh (e.g., 60vh) to match the reference
+  const bgHeightVh = 65;
+
   return (
     <div style={{
       minHeight: "100vh",
@@ -20,7 +23,23 @@ export default function IntroScreen({ onSkip }: IntroScreenProps) {
       overflow: "hidden",
       flexDirection: "column",
     }}>
-      <RaindropBackground />
+      {/* Background image at the very back, aligned to top and sides, not stretching to bottom */}
+      <img
+        src="/intro-page-background.png"
+        alt="Intro Background"
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: `${bgHeightVh}vh`,
+          objectFit: "cover",
+          objectPosition: "top center",
+          zIndex: 0,
+          pointerEvents: "none",
+        }}
+      />
+      <RaindropBackground rainEndVh={bgHeightVh*1.5} />
       <img
         src="/arcana-logo-no-bg2.png"
         alt="Arcana Seed Lodge Logo"
