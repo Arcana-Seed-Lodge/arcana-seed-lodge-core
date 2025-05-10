@@ -4,7 +4,12 @@ import { GenerateSeedLogic } from "./GenerateSeedLogic";
 const seedLogic = new GenerateSeedLogic();
 const xpub = seedLogic.getSeedHex();
 
-export default function BitcoinWallet() {
+// Add prop type for onBack
+interface BitcoinWalletProps {
+  onBack?: () => void;
+}
+
+export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -25,7 +30,32 @@ export default function BitcoinWallet() {
       justifyContent: "flex-start",
       paddingTop: 40,
       letterSpacing: 1.5,
+      position: "relative",
     }}>
+      {/* Back Arrow */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          aria-label="Back"
+          style={{
+            position: "absolute",
+            top: 24,
+            left: 24,
+            background: "none",
+            border: "none",
+            color: "#F98029",
+            cursor: "pointer",
+            zIndex: 2,
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+      )}
       {/* Logo instead of title */}
       <img
         src="/arcana-logo.jpeg"

@@ -1,6 +1,6 @@
 import React from "react";
 
-const NUM_DROPS = 221;
+const NUM_DROPS = 400;
 const ORANGE = "#F98029";
 const ANGLE_DEGREES = -30;
 
@@ -67,7 +67,7 @@ export default function RaindropBackground() {
         @keyframes raindrop-fall-angled {
           0% { transform: translate(0, -10vh) rotate(${ANGLE_DEGREES}deg); opacity: 1; }
           90% { opacity: 1; }
-          100% { transform: translate(58vw, 110vh) rotate(${ANGLE_DEGREES}deg); opacity: 0; }
+          100% { transform: translate(58vw, 85vh) rotate(${ANGLE_DEGREES}deg); opacity: 0; }
         }
       `}</style>
       {drops}

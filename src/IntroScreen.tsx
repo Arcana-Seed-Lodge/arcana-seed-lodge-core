@@ -1,7 +1,13 @@
 import React from "react";
 import RaindropBackground from "./RaindropBackground";
 
-export default function IntroScreen() {
+const ORANGE = "#F98029";
+
+type IntroScreenProps = {
+  onSkip: () => void;
+};
+
+export default function IntroScreen({ onSkip }: IntroScreenProps) {
   return (
     <div style={{
       minHeight: "100vh",
@@ -12,20 +18,71 @@ export default function IntroScreen() {
       justifyContent: "center",
       position: "relative",
       overflow: "hidden",
+      flexDirection: "column",
     }}>
       <RaindropBackground />
       <img
         src="/arcana-logo-no-bg2.png"
         alt="Arcana Seed Lodge Logo"
         style={{
-          maxWidth: 400,
-          width: "80vw",
+          maxWidth: 300,
+          width: "60vw",
           height: "auto",
           filter: "drop-shadow(0 0 32px #F9802933)",
           zIndex: 1,
           position: "relative",
+          marginBottom: 8,
+          opacity: 1.0,
         }}
       />
+      <div style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 18,
+        zIndex: 1,
+      }}>
+        <button
+          style={{
+            background: ORANGE,
+            color: "#181406",
+            border: "none",
+            borderRadius: 999,
+            padding: "16px 48px",
+            fontSize: 20,
+            fontWeight: 700,
+            letterSpacing: 1.2,
+            marginBottom: 8,
+            cursor: "pointer",
+            boxShadow: "0 0 12px #F9802933",
+            width: 260,
+            maxWidth: "80vw",
+            transition: "background 0.2s, color 0.2s",
+          }}
+        >
+          Enter the Story
+        </button>
+        <button
+          style={{
+            background: "#181406",
+            color: ORANGE,
+            border: `2px solid ${ORANGE}`,
+            borderRadius: 999,
+            padding: "16px 48px",
+            fontSize: 20,
+            fontWeight: 700,
+            letterSpacing: 1.2,
+            cursor: "pointer",
+            width: 260,
+            maxWidth: "80vw",
+            marginBottom: 24,
+            transition: "background 0.2s, color 0.2s",
+          }}
+          onClick={onSkip}
+        >
+          Skip Story
+        </button>
+      </div>
     </div>
   );
 } 

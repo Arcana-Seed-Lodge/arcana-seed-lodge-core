@@ -12,9 +12,9 @@ function App() {
   // Example: you can later call setScreen('wallet') to switch
 
   if (screen === "intro") {
-    return <IntroScreen />;
+    return <IntroScreen onSkip={() => setScreen("wallet")} />;
   }
-  return <BitcoinWallet />;
+  return <BitcoinWallet onBack={() => setScreen("intro")} />;
 }
 
 export default App;
