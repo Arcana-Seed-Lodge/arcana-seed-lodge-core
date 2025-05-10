@@ -3,16 +3,17 @@ import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 import BitcoinWallet from "./BitcoinWallet";
+import IntroScreen from "./IntroScreen";
 
 function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+  // Track which screen to show
+  const [screen, setScreen] = useState("intro"); // 'intro' or 'wallet'
 
-  async function greet() {
-    // Learn more about Tauri commands at https://v1.tauri.app/v1/guides/features/command
-    setGreetMsg(await invoke("greet", { name }));
+  // Example: you can later call setScreen('wallet') to switch
+
+  if (screen === "intro") {
+    return <IntroScreen />;
   }
-
   return <BitcoinWallet />;
 }
 

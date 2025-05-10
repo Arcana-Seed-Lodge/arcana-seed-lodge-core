@@ -1,0 +1,98 @@
+🕯️ Title: Arcana Seed Lodge: A Sovereign’s Journey
+🗺️ Setting: Charleston, South Carolina, 1852
+Dark whispers of revolution stir beneath the gaslight. A crown grows bolder. A fortune is at risk.
+
+🎭 Characters (Cartoon Honey Badgers in Robes)
+Brother Alder Blackpaw – The Worshipful Master of the Arcana Seed Lodge (wise, veiled, gentle menace)
+
+Sister Theodora Nightroot – Keeper of the Cipher, mystic, former Pinkerton defector
+
+Brother Bartholomew Flint – Gavel-bearer, enforcer of rites, speaks only in rhymed couplets
+
+Apprentice Silas Pinewhisker – Nervous initiator, guides the player with prompts and lore
+
+You – The Protagonist, heir to a sovereign fortune, known only as The Descendant
+
+🧭 Act 1: The Flight
+"The Monarchy has come for your father's gold. You were given no trial. No recourse. [1]
+
+Only one option remained: vanish—and bury your legacy in the sacred code."[2]
+
+Player wakes in a Charleston tavern, whispered to by Silas. The Crown is coming - best to change location. [3]
+
+You follow the instructions from the tavern goer the night before - instructions engraved on a coin alongside the symbol of the Lodge [4]
+
+You come upon the alley described on the coin where you meet Brother Alder Blackpaw. He says:
+"We do not bury gold. We transmute it. Into something incorruptible."
+"You will pass the Rite of Twelve Segments. And only then will your seed be sovereign." [5]
+
+🕰️ Act 2: The Rite Begins (Seed Phrase Onboarding)
+You are blindfolded and taken in a horse-drawn carriage through mist and moonlight. Dialogues are riddles. The terrain echoes Charleston’s marshlands and ruins. [7]
+
+At the Lodge:
+
+You step through the heavy wooden doors, their iron hinges groaning like the throat of an ancient crypt. The scent of beeswax, damp parchment, and charred incense fills the air.
+
+Candlelight flickers across a vaulted chamber. Stone walls breathe with age. A circle of hooded figures watches from the shadows—silent, motionless, eternal.
+
+Brother Alder Blackpaw emerges from the darkness. His robe shimmers slightly in the flame's glow, lined with glyphs you half-recognize from dreams you never remembered having. He speaks:
+
+“The Rite of Twelve Segments begins with memory.”
+“Six places that echo in your bones. Not merely known… but felt.”
+“Where your spirit once stood, your seed shall find form.”
+
+He unrolls a vast tracing board upon the table. Its surface glows faintly—like coal long extinguished but never fully dead.
+
+Lines of longitude intersect with sacred curves. The terrain of the Southern realms flickers as if alive. You see rivers you knew in childhood. Cities whose names were whispered in your father’s workshop. The coastlines of freedom and exile alike.
+
+“Mark them,” Alder says, gesturing to six obsidian pointers laid before you.
+“Mark the places your soul dares to remember.”
+
+You reach for the first marker. As your hand hovers over the board, time thickens.
+
+One by one, you begin to trace your own cipher across the land. [8]
+
+
+
+Silas explains:
+
+"Each place you choose marks a life lived. Together, they form the twelve rays of the sovereign star."
+
+These locations get converted into geohashes behind the scenes.
+
+🧿 Act 3: The Circle of Runes (Symbolic Passphrase)
+You’re led to the Chamber of Glyphs. The altar glows with the 32 sacred symbols.
+
+"Speak the names of the glyphs that bind your soul to this memory. You need not speak all. But eight shall be sealed."
+
+UI lets users pick 1–8 Masonic/KGC symbols (turkey, turtle, anchor, trowel, etc.)
+
+Unused slots are filled with the null glyph (Square & Compasses)
+
+These symbols contribute the second layer of entropy.
+
+🧱 Act 4: Transmutation
+Brother Flint strikes the gavel. A final ritual begins.
+
+"The gold you carried shall vanish. It shall pass through the Portalis Aureum—the Golden Portal—and emerge as a Cipher known only to blood and earth."
+"Recite the cipher, burn the map, bury the coin."
+
+The geohashes + glyph sequence are hashed → entropy → BIP39 seed phrase.
+
+The 12- or 24-word mnemonic appears in gold across the screen.
+
+Option to render it as QR sigil or inscribed parchment UI
+
+Export option: print, write, or memorize
+
+🪦 Final Cutscene
+“You leave Arcana Seed Lodge in silence. Your gold no longer exists in this world. But it is not lost.”
+“It awaits your descendant—if they too can walk the path you chose.”
+
+🎮 Bonus Ideas
+Difficulty settings: “Pilgrim”, “Knight”, “Grand Architect”
+
+Hidden room with Masonic ciphers you can unlock if you remember your symbol order
+
+Actual geohash constellation visualizer (the 5+ points form a sigil)
+
