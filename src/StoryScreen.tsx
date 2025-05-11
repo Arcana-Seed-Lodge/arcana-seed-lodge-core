@@ -24,10 +24,83 @@ const slides = [
     text: (
       <>
         <div style={{ fontWeight: 700 }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br />
-          Pellentesque euismod, nisi eu consectetur.
+          Only one option remained: vanish—and bury your legacy in the sacred code.
         </div>
-        <div style={{ marginTop: 16 }}>Lorem ipsum.</div>
+      </>
+    ),
+  },
+  {
+    image: "/storyboard-images/storyboard-part3-image.png",
+    text: (
+      <>
+        <div style={{ fontWeight: 700 }}>
+          You wake up in a Charleston tavern, whispered to by Silas.<br />
+          The Crown is coming - best to change location.
+        </div>
+      </>
+    ),
+  },
+  {
+    image: "/storyboard-images/storyboard-part4-image.png",
+    text: (
+      <>
+        <div style={{ fontWeight: 700 }}>
+          You follow the instructions from the tavern goer the night before... 
+        </div>
+        <div>
+        ...instructions engraved on a coin alongside the symbol of the Lodge.
+        </div>
+      </>
+    ),
+  },
+  {
+    image: "/storyboard-images/storyboard-part5-image.png",
+    text: (
+      <>
+        <div style={{ fontWeight: 700 }}>
+          You come upon the alley described on the coin where you meet Brother Alder Blackpaw. He says:
+        </div>
+        <div style={{ marginTop: 16, fontStyle: "italic" }}>
+          "We do not bury gold. We transmute it. Into something incorruptible."<br />
+          "You will pass the Rite of Twelve Segments. And only then will your seed be sovereign."
+        </div>
+      </>
+    ),
+  },
+  {
+    image: "/storyboard-images/storyboard-part6-image.png",
+    text: (
+      <>
+        <div style={{ fontWeight: 700 }}>
+          You are blindfolded and taken in a horse-drawn carriage through mist and moonlight. Dialogues are riddles. The terrain echoes Charleston's marshlands and ruins.
+        </div>
+      </>
+    ),
+  },
+  {
+    image: "/storyboard-images/storyboard-part7-image.png",
+    text: (
+      <>
+        <div style={{ fontWeight: 700 }}>
+          At the Lodge:<br />
+          You step through the heavy wooden doors, their iron hinges groaning like the throat of an ancient crypt. The scent of beeswax, damp parchment, and charred incense fills the air.<br />
+          Candlelight flickers across a vaulted chamber. Stone walls breathe with age. A circle of hooded figures watches from the shadows—silent, motionless, eternal.
+        </div>
+      </>
+    ),
+  },
+  {
+    image: "/storyboard-images/storyboard-part8-image.png",
+    text: (
+      <>
+        <div style={{ fontWeight: 700 }}>
+          Brother Alder Blackpaw emerges from the darkness. His robe shimmers slightly in the flame's glow, lined with glyphs you half-recognize from dreams you never remembered having. He speaks:
+        </div>
+        <div style={{ marginTop: 16, fontStyle: "italic" }}>
+          "The Rite of Twelve Segments begins with memory."<br />
+          "Six places that echo in your bones. Not merely known… but felt."<br />
+          "Where your spirit once stood, your seed shall find form."
+        </div>
       </>
     ),
   },
@@ -68,6 +141,7 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
           height: "auto",
           marginBottom: 32,
           display: "block",
+          borderRadius: 8,
         }}
       />
       <div
