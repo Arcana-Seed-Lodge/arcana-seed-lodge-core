@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const ORANGE = "#F98029";
+const IMAGE_FADE_DURATION = 600; // ms
 
 type StoryScreenProps = {
   onBack: () => void;
@@ -9,112 +10,109 @@ type StoryScreenProps = {
 const slides = [
   {
     image: "/storyboard-images/storyboard-part1-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          The Crown has come for your father's gold. You were<br />
-          given no trial. No recourse.
-        </div>
-        <div style={{ marginTop: 16 }}>Just decree.</div>
-      </>
-    ),
+    text: [
+      " The Crown has come for your father's gold. You were given no trial. No recourse.",
+      " Just decree."
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part2-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          Only one option remained: vanish—and bury your legacy in the sacred code.
-        </div>
-      </>
-    ),
+    text: [
+      " Only one option remained: vanish—",
+      " and bury your legacy in the sacred code."
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part3-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          You wake up in a Charleston tavern, whispered to by Silas.<br />
-          The Crown is coming - best to change location.
-        </div>
-      </>
-    ),
+    text: [
+      " You wake up in the inn on the countryside village, whispered to by Silas.",
+      " The Crown is coming - best to change location."
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part4-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          You follow the instructions from the tavern goer the night before... 
-        </div>
-        <div>
-        ...instructions engraved on a coin alongside the symbol of the Lodge.
-        </div>
-      </>
-    ),
+    text: [
+      " You follow the instructions from the tavern goer the night before...",
+      "...instructions engraved on a coin alongside the symbol of the Lodge."
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part5-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          You come upon the alley described on the coin where you meet Brother Alder Blackpaw. He says:
-        </div>
-        <div style={{ marginTop: 16, fontStyle: "italic" }}>
-          "We do not bury gold. We transmute it. Into something incorruptible."<br />
-          "You will pass the Rite of Twelve Segments. And only then will your seed be sovereign."
-        </div>
-      </>
-    ),
+    text: [
+      " Brother Alder Blackpaw appears in the alley. He says:",
+      ' "We do not bury gold. We transmute it. Into something incorruptible."',
+      ' "You will pass the Rite of Twelve Segments. And only then will your seed be sovereign."'
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part6-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          You are blindfolded and taken in a horse-drawn carriage through mist and moonlight. Dialogues are riddles. The terrain echoes Charleston's marshlands and ruins.
-        </div>
-      </>
-    ),
+    text: [
+      " You are blindfolded and taken in a horse-drawn carriage through mist and moonlight—",
+      " Dialogues are riddles. The terrain echoes Charleston's marshlands and ruins."
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part7-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          At the Lodge:<br />
-          You step through the heavy wooden doors, their iron hinges groaning like the throat of an ancient crypt. The scent of beeswax, damp parchment, and charred incense fills the air.<br />
-          Candlelight flickers across a vaulted chamber. Stone walls breathe with age. A circle of hooded figures watches from the shadows—silent, motionless, eternal.
-        </div>
-      </>
-    ),
+    text: [
+      " You step through the heavy wooden doors, their iron hinges groaning like the throat of an ancient crypt. The scent of beeswax, damp parchment, and charred incense fills the air.",
+      " Stone walls breathe with age. A circle of hooded figures watches from the shadows—silent, motionless, eternal."
+    ],
   },
   {
     image: "/storyboard-images/storyboard-part8-image.png",
-    text: (
-      <>
-        <div style={{ fontWeight: 700 }}>
-          Brother Alder Blackpaw emerges from the darkness. His robe shimmers slightly in the flame's glow, lined with glyphs you half-recognize from dreams you never remembered having. He speaks:
-        </div>
-        <div style={{ marginTop: 16, fontStyle: "italic" }}>
-          "The Rite of Twelve Segments begins with memory."<br />
-          "Six places that echo in your bones. Not merely known… but felt."<br />
-          "Where your spirit once stood, your seed shall find form."
-        </div>
-      </>
-    ),
+    text: [
+      " Brother Alder Blackpaw emerges from the darkness. His robe shimmers slightly in the flame's glow, lined with glyphs you half-recognize from dreams you never remembered having. He speaks:",
+      ' "The Rite of Twelve Segments begins with memory."',
+      ' "Six places that echo in your bones. Not merely known… but felt."',
+      ' "Where your spirit once stood, your seed shall find form."'
+    ],
   },
 ];
 
 export default function StoryScreen({ onBack }: StoryScreenProps) {
-  const [slide, setSlide] = useState(0);
-  const current = slides[slide];
+  const [slide, setSlide] = useState(0); // logical slide
+  const [displayedSlide, setDisplayedSlide] = useState(0); // image/text being shown
+  const [imgVisible, setImgVisible] = useState(true);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const current = slides[displayedSlide];
+
+  // On navigation, instantly hide image, swap, then fade in
+  const goToSlide = (target: number, onDone?: () => void) => {
+    if (isAnimating || target === displayedSlide) return;
+    setIsAnimating(true);
+    setImgVisible(false); // instantly hide
+    setTimeout(() => {
+      setDisplayedSlide(target); // swap image
+      setTimeout(() => {
+        setImgVisible(true); // fade in
+        setTimeout(() => {
+          setIsAnimating(false);
+          if (onDone) onDone();
+        }, IMAGE_FADE_DURATION);
+      }, 20); // allow DOM to update
+    }, 20); // allow opacity 0 to apply
+  };
+
+  useEffect(() => {
+    setImgVisible(true); // ensure fade in on first mount
+  }, []);
 
   const handleBack = () => {
+    if (isAnimating) return;
     if (slide === 0) {
-      onBack();
+      setImgVisible(false);
+      setTimeout(() => onBack(), 20); // instantly hide, then go back
     } else {
       setSlide((s) => s - 1);
+      goToSlide(slide - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (isAnimating) return;
+    if (slide < slides.length - 1) {
+      setSlide((s) => s + 1);
+      goToSlide(slide + 1);
     }
   };
 
@@ -128,10 +126,16 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
+        boxSizing: "border-box",
+        paddingLeft: "20vw",
+        paddingRight: "20vw",
+        userSelect: "none",
+        pointerEvents: "none",
       }}
     >
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
       <img
+        key={displayedSlide}
         src={current.image}
         alt="story"
         style={{
@@ -142,7 +146,12 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
           marginBottom: 32,
           display: "block",
           borderRadius: 8,
+          opacity: imgVisible ? 1 : 0,
+          transition: `opacity ${IMAGE_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
+          userSelect: "none",
+          pointerEvents: "none",
         }}
+        draggable={false}
       />
       <div
         style={{
@@ -152,11 +161,18 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
           marginBottom: 24,
           fontFamily: "'Cinzel', serif",
           fontWeight: 700,
+          minHeight: 60,
+          userSelect: "none",
+          pointerEvents: "none",
         }}
       >
-        {current.text}
+        {current.text.map((line, i) => (
+          <div key={i} style={{ marginTop: i === 0 ? 0 : 16, fontStyle: i > 0 ? "italic" : undefined }}>
+            {line}
+          </div>
+        ))}
       </div>
-      <div style={{ display: "flex", gap: 16, justifyContent: "center" }}>
+      <div style={{ display: "flex", gap: 16, justifyContent: "center", pointerEvents: "auto", userSelect: "auto" }}>
         <button
           style={{
             background: "#181406",
@@ -167,12 +183,14 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
             fontSize: 16,
             fontWeight: 700,
             letterSpacing: 1.1,
-            cursor: "pointer",
+            cursor: isAnimating ? "not-allowed" : "pointer",
             minWidth: 80,
             fontFamily: "'Cinzel', serif",
             transition: "background 0.2s, color 0.2s",
+            opacity: isAnimating ? 0.5 : 1,
           }}
           onClick={handleBack}
+          disabled={isAnimating}
         >
           Back
         </button>
@@ -186,16 +204,17 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
             fontSize: 16,
             fontWeight: 700,
             letterSpacing: 1.1,
-            cursor: "pointer",
+            cursor: isAnimating ? "not-allowed" : "pointer",
             minWidth: 80,
             fontFamily: "'Cinzel', serif",
+            opacity: isAnimating ? 0.5 : 1,
           }}
-          onClick={() => setSlide((s) => Math.min(s + 1, slides.length - 1))}
-          disabled={slide === slides.length - 1}
+          onClick={handleNext}
+          disabled={slide === slides.length - 1 || isAnimating}
         >
           Next
         </button>
       </div>
     </div>
   );
-} 
+}

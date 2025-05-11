@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useLayoutEffect, useState } from "react";
 import RaindropBackground from "./RaindropBackground";
 
 const ORANGE = "#F98029";
@@ -9,62 +9,98 @@ type IntroScreenProps = {
 };
 
 export default function IntroScreen({ onSkip, onEnterStory }: IntroScreenProps) {
-  // Height of the background image in vh (e.g., 60vh) to match the reference
+  // Height of the background area in vh
   const bgHeightVh = 60;
+  const bgRef = useRef<HTMLDivElement>(null);
+  const [bgHeightPx, setBgHeightPx] = useState<number>(0);
+
+  useLayoutEffect(() => {
+    function updateHeight() {
+      if (bgRef.current) {
+        setBgHeightPx(bgRef.current.offsetHeight);
+      }
+    }
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
+  }, []);
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      width: "100vw",
-      background: "#181406",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      position: "relative",
-      overflow: "hidden",
-      flexDirection: "column",
-      fontFamily: "'Cinzel', serif",
-    }}>
-      {/* Google Fonts link for Cinzel */}
-      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
-      {/* Background image at the very back, aligned to top and sides, not stretching to bottom */}
-      <img
-        src="/intro-page-background.png"
-        alt="Intro Background"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100vw",
-          height: `${bgHeightVh}vh`,
-          objectFit: "cover",
-          objectPosition: "top center",
-          zIndex: 0,
-          pointerEvents: "none",
-        }}
-      />
-      <RaindropBackground rainEndVh={bgHeightVh} />
-      <img
-        src="/arcana-logo-no-bg2.png"
-        alt="Arcana Seed Lodge Logo"
-        style={{
-          maxWidth: 300,
-          width: "60vw",
-          height: "auto",
-          filter: "drop-shadow(0 0 32px #F9802933)",
-          zIndex: 1,
-          position: "relative",
-          marginBottom: 8,
-          opacity: 1.0,
-        }}
-      />
-      <div style={{
+    <div
+      style={{
+        minHeight: "100vh",
+        width: "100vw",
+        background: "#181406",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: 18,
-        zIndex: 1,
-      }}>
+        fontFamily: "'Cinzel', serif",
+      }}
+    >
+      {/* Google Fonts link for Cinzel */}
+      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+      {/* Top background area with background image and raindrops */}
+      <div
+        ref={bgRef}
+        style={{
+          position: "relative",
+          width: "100vw",
+          height: `${bgHeightVh}vh`,
+          backgroundImage: "url(/intro-page-background.png)",
+          backgroundSize: "cover",
+          backgroundPosition: "top center",
+          overflow: "hidden",
+          zIndex: 0,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-end",
+        }}
+      >
+        {/* Gradient blend at the bottom */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            bottom: 0,
+            width: "100vw",
+            height: 80,
+            pointerEvents: "none",
+            zIndex: 2,
+            background: "linear-gradient(to bottom, rgba(24,20,6,0) 0%, #181406 100%)",
+          }}
+        />
+        {bgHeightPx > 0 && <RaindropBackground rainEndPx={bgHeightPx} />}
+        {/* Logo absolutely positioned at the bottom center */}
+        <img
+          src="/arcana-logo-no-bg2.png"
+          alt="Arcana Seed Lodge Logo"
+          style={{
+            maxWidth: 300,
+            width: "60vw",
+            height: "auto",
+            filter: "drop-shadow(0 0 32px #F9802933)",
+            zIndex: 3,
+            position: "absolute",
+            left: "50%",
+            bottom: 0,
+            transform: "translateX(-50%)",
+            marginBottom: '-6vh',
+            opacity: 1.0,
+          }}
+        />
+      </div>
+      {/* Buttons below the background area */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 18,
+          zIndex: 1,
+          marginTop: 32,
+        }}
+      >
         <button
           style={{
             background: ORANGE,

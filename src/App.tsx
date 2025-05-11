@@ -10,13 +10,15 @@ function App() {
   // Track which screen to show
   const [screen, setScreen] = useState("intro"); // 'intro', 'story', or 'wallet'
 
-  if (screen === "intro") {
-    return <IntroScreen onSkip={() => setScreen("wallet")} onEnterStory={() => setScreen("story")} />;
-  }
-  if (screen === "story") {
-    return <StoryScreen onBack={() => setScreen("intro")} />;
-  }
-  return <BitcoinWallet onBack={() => setScreen("intro")} />;
+  return (
+    <div style={{ background: "#181406", minHeight: "100vh", width: "100vw" }}>
+      {screen === "intro" && (
+        <IntroScreen onSkip={() => setScreen("wallet")} onEnterStory={() => setScreen("story")} />
+      )}
+      {screen === "story" && <StoryScreen onBack={() => setScreen("intro")} />}
+      {screen === "wallet" && <BitcoinWallet onBack={() => setScreen("intro")} />}
+    </div>
+  );
 }
 
 export default App;

@@ -9,10 +9,10 @@ function getRandom(min: number, max: number) {
 }
 
 interface RaindropBackgroundProps {
-  rainEndVh?: number; // vertical endpoint in vh
+  rainEndPx?: number; // vertical endpoint in pixels
 }
 
-export default function RaindropBackground({ rainEndVh = 85 }: RaindropBackgroundProps) {
+export default function RaindropBackground({ rainEndPx = 500 }: RaindropBackgroundProps) {
   // To cover the screen at an angle, allow drops to start off-screen left and end off-screen right
   // The horizontal travel is tan(angle) * vertical travel
   // For 100vh vertical, horizontal = tan(30deg) * 100vh ≈ 0.577 * 100vh ≈ 58vw
@@ -55,9 +55,9 @@ export default function RaindropBackground({ rainEndVh = 85 }: RaindropBackgroun
       >
         <style>{`
           @keyframes ${animName} {
-            0% { transform: translate(0, -10vh) rotate(${ANGLE_DEGREES}deg); opacity: 1; }
+            0% { transform: translate(0, -10px) rotate(${ANGLE_DEGREES}deg); opacity: 1; }
             90% { opacity: 1; }
-            100% { transform: translate(58vw, ${rainEndVh}vh) rotate(${ANGLE_DEGREES}deg); opacity: 0; }
+            100% { transform: translate(58vw, ${rainEndPx}px) rotate(${ANGLE_DEGREES}deg); opacity: 0; }
           }
         `}</style>
       </span>
@@ -71,7 +71,7 @@ export default function RaindropBackground({ rainEndVh = 85 }: RaindropBackgroun
         top: 0,
         left: 0,
         width: "100vw",
-        height: "100vh",
+        height: "100%",
         overflow: "hidden",
         pointerEvents: "none",
         zIndex: 0,
