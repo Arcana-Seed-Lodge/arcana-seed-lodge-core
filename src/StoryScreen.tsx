@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 const ORANGE = "#F98029";
-const IMAGE_FADE_DURATION = 600; // ms
+const IMAGE_FADE_DURATION = 1200; // ms
 
 type StoryScreenProps = {
   onBack: () => void;
@@ -54,14 +54,14 @@ const slides = [
   {
     image: "/storyboard-images/storyboard-part7-image.png",
     text: [
-      " You step through the heavy wooden doors, their iron hinges groaning like the throat of an ancient crypt. The scent of beeswax, damp parchment, and charred incense fills the air.",
+      " You step through the heavy wooden doors, their iron hinges groaning like the throat of an ancient crypt. The scent of damp parchment, and incense fills the air.",
       " Stone walls breathe with age. A circle of hooded figures watches from the shadows—silent, motionless, eternal."
     ],
   },
   {
     image: "/storyboard-images/storyboard-part8-image.png",
     text: [
-      " Brother Alder Blackpaw emerges from the darkness. His robe shimmers slightly in the flame's glow, lined with glyphs you half-recognize from dreams you never remembered having. He speaks:",
+      " Brother Alder Blackpaw emerges from the darkness, his robes aglow. He speaks:",
       ' "The Rite of Twelve Segments begins with memory."',
       ' "Six places that echo in your bones. Not merely known… but felt."',
       ' "Where your spirit once stood, your seed shall find form."'
@@ -72,7 +72,7 @@ const slides = [
 export default function StoryScreen({ onBack }: StoryScreenProps) {
   const [slide, setSlide] = useState(0); // logical slide
   const [displayedSlide, setDisplayedSlide] = useState(0); // image/text being shown
-  const [imgVisible, setImgVisible] = useState(true);
+  const [imgVisible, setImgVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const current = slides[displayedSlide];
 
@@ -94,7 +94,10 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
   };
 
   useEffect(() => {
-    setImgVisible(true); // ensure fade in on first mount
+    // Trigger fade in on first mount
+    setTimeout(() => {
+      setImgVisible(true);
+    }, 20); // Small delay to ensure the initial state is applied
   }, []);
 
   const handleBack = () => {
