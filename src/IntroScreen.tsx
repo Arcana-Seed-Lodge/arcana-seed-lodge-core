@@ -5,11 +5,12 @@ const ORANGE = "#F98029";
 
 type IntroScreenProps = {
   onSkip: () => void;
+  onEnterStory: () => void;
 };
 
-export default function IntroScreen({ onSkip }: IntroScreenProps) {
+export default function IntroScreen({ onSkip, onEnterStory }: IntroScreenProps) {
   // Height of the background image in vh (e.g., 60vh) to match the reference
-  const bgHeightVh = 65;
+  const bgHeightVh = 60;
 
   return (
     <div style={{
@@ -22,7 +23,10 @@ export default function IntroScreen({ onSkip }: IntroScreenProps) {
       position: "relative",
       overflow: "hidden",
       flexDirection: "column",
+      fontFamily: "'Cinzel', serif",
     }}>
+      {/* Google Fonts link for Cinzel */}
+      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
       {/* Background image at the very back, aligned to top and sides, not stretching to bottom */}
       <img
         src="/intro-page-background.png"
@@ -39,7 +43,7 @@ export default function IntroScreen({ onSkip }: IntroScreenProps) {
           pointerEvents: "none",
         }}
       />
-      <RaindropBackground rainEndVh={bgHeightVh*1.5} />
+      <RaindropBackground rainEndVh={bgHeightVh} />
       <img
         src="/arcana-logo-no-bg2.png"
         alt="Arcana Seed Lodge Logo"
@@ -78,8 +82,9 @@ export default function IntroScreen({ onSkip }: IntroScreenProps) {
             maxWidth: "80vw",
             transition: "background 0.2s, color 0.2s",
           }}
+          onClick={onEnterStory}
         >
-          Enter the Story
+          Enter Story
         </button>
         <button
           style={{
@@ -94,7 +99,6 @@ export default function IntroScreen({ onSkip }: IntroScreenProps) {
             cursor: "pointer",
             width: 260,
             maxWidth: "80vw",
-            marginBottom: 24,
             transition: "background 0.2s, color 0.2s",
           }}
           onClick={onSkip}
