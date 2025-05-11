@@ -217,7 +217,7 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
               marginTop: i === 0 ? 0 : 16,
               fontStyle: i > 0 ? "italic" : undefined,
               opacity: textVisible[i] ? 1 : 0,
-              transform: `translateX(${textVisible[i] ? '0' : '20px'})`,
+              transform: `translateX(${textVisible[i] ? '0' : '-20px'})`,
               transition: `opacity ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1), transform ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
               willChange: 'transform, opacity',
             }}
