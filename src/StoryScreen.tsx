@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 
 const ORANGE = "#F98029";
 const IMAGE_FADE_DURATION = 1200; // ms
+const TEXT_FADE_DURATION = 800; // ms
+const TEXT_DELAY = 400; // ms delay after image starts fading
+const TEXT_STAGGER_DELAY = 200; // ms between each line of text
 
 type StoryScreenProps = {
   onBack: () => void;
@@ -74,38 +77,74 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
   const [displayedSlide, setDisplayedSlide] = useState(0); // image/text being shown
   const [imgVisible, setImgVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [textVisible, setTextVisible] = useState<boolean[]>([]);
   const current = slides[displayedSlide];
+
+  // Initialize text visibility array
+  useEffect(() => {
+    setTextVisible(new Array(current.text.length).fill(false));
+  }, [displayedSlide]);
 
   // On navigation, instantly hide image, swap, then fade in
   const goToSlide = (target: number, onDone?: () => void) => {
     if (isAnimating || target === displayedSlide) return;
     setIsAnimating(true);
     setImgVisible(false); // instantly hide
+    setTextVisible(new Array(slides[target].text.length).fill(false)); // reset text visibility
+    
     setTimeout(() => {
       setDisplayedSlide(target); // swap image
       setTimeout(() => {
-        setImgVisible(true); // fade in
+        setImgVisible(true); // fade in image
+        // Start text animations after image starts fading
         setTimeout(() => {
-          setIsAnimating(false);
-          if (onDone) onDone();
-        }, IMAGE_FADE_DURATION);
-      }, 20); // allow DOM to update
-    }, 20); // allow opacity 0 to apply
+          // Stagger text animations
+          slides[target].text.forEach((_, index) => {
+            setTimeout(() => {
+              setTextVisible(prev => {
+                const newState = [...prev];
+                newState[index] = true;
+                return newState;
+              });
+            }, index * TEXT_STAGGER_DELAY);
+          });
+          
+          setTimeout(() => {
+            setIsAnimating(false);
+            if (onDone) onDone();
+          }, Math.max(IMAGE_FADE_DURATION, TEXT_DELAY + (slides[target].text.length * TEXT_STAGGER_DELAY) + TEXT_FADE_DURATION));
+        }, TEXT_DELAY);
+      }, 20);
+    }, 20);
   };
 
   useEffect(() => {
     // Trigger fade in on first mount
     setTimeout(() => {
       setImgVisible(true);
-    }, 20); // Small delay to ensure the initial state is applied
+      // Start text animations after image starts fading
+      setTimeout(() => {
+        current.text.forEach((_, index) => {
+          setTimeout(() => {
+            setTextVisible(prev => {
+              const newState = [...prev];
+              newState[index] = true;
+              return newState;
+            });
+          }, index * TEXT_STAGGER_DELAY);
+        });
+      }, TEXT_DELAY);
+    }, 20);
   }, []);
 
   const handleBack = () => {
     if (isAnimating) return;
     if (slide === 0) {
       setImgVisible(false);
+      setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
       setTimeout(() => onBack(), 20); // instantly hide, then go back
     } else {
+      setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
       setSlide((s) => s - 1);
       goToSlide(slide - 1);
     }
@@ -114,6 +153,7 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
   const handleNext = () => {
     if (isAnimating) return;
     if (slide < slides.length - 1) {
+      setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
       setSlide((s) => s + 1);
       goToSlide(slide + 1);
     }
@@ -168,9 +208,20 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
           userSelect: "none",
           pointerEvents: "none",
         }}
+        key={`text-container-${displayedSlide}`}
       >
         {current.text.map((line, i) => (
-          <div key={i} style={{ marginTop: i === 0 ? 0 : 16, fontStyle: i > 0 ? "italic" : undefined }}>
+          <div
+            key={i}
+            style={{
+              marginTop: i === 0 ? 0 : 16,
+              fontStyle: i > 0 ? "italic" : undefined,
+              opacity: textVisible[i] ? 1 : 0,
+              transform: `translateX(${textVisible[i] ? '0' : '20px'})`,
+              transition: `opacity ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1), transform ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
+              willChange: 'transform, opacity',
+            }}
+          >
             {line}
           </div>
         ))}
