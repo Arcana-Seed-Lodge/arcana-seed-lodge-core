@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"
 
 const NUM_DROPS = 400;
 const ORANGE = "#F98029";

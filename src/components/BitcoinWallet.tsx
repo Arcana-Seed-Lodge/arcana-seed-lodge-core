@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { GenerateSeedLogic } from "./GenerateSeedLogic";
+import { GenerateSeedLogic } from "../GenerateSeedLogic";
 
 const seedLogic = new GenerateSeedLogic();
 const xpub = seedLogic.getSeedHex();
