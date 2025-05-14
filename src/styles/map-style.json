@@ -1,0 +1,55 @@
+{
+  "version": 8,
+  "sources": {
+    "openfreemap": {
+      "type": "vector",
+      "tiles": ["https://tiles.openfreemap.org/styles/liberty"],
+      "maxzoom": 14
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f0f4f8"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "openfreemap",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#4a90e2"
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "openfreemap",
+      "source-layer": "road",
+      "paint": {
+        "line-color": "#ff6b6b",
+        "line-width": 2,
+        "line-dasharray": [2, 2]
+      }
+    },
+    {
+      "id": "place_labels",
+      "type": "symbol",
+      "source": "openfreemap",
+      "source-layer": "place",
+      "layout": {
+        "text-field": "{name}",
+        "text-font": ["Open Sans Regular"],
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#333",
+        "text-halo-color": "#fff",
+        "text-halo-width": 1
+      }
+    }
+  ]
+}
