@@ -1,19 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+
+export enum PresentationContext {
+  DEFAULT = "DEFAULT",
+  RECEIVE_ADDRESS_RENDERING = "RECEIVE_ADDRESS_RENDERING"
+}
 
 interface QRCodeModalProps {
   onClose: () => void;
   content: string;
   title?: string;
   qrSize?: number;
+  presentationContext?: PresentationContext;
+  addressIndex?: number;
+  onNextAddress?: () => void;
 }
 
 export default function QRCodeModal({ 
   onClose, 
   content, 
   title = "Scan QR Code", 
-  qrSize = 200 
+  qrSize = 200,
+  presentationContext = PresentationContext.DEFAULT,
+  addressIndex = 0,
+  onNextAddress
 }: QRCodeModalProps) {
+  
+  const isReceiveAddressContext = presentationContext === PresentationContext.RECEIVE_ADDRESS_RENDERING;
+  const [copied, setCopied] = useState(false);
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
+  };
+  
   return (
     <div style={{
       position: "fixed",
@@ -66,7 +87,7 @@ export default function QRCodeModal({
           fontSize: 20,
           fontWeight: 600,
         }}>
-          {title}
+          {isReceiveAddressContext ? `Address #${addressIndex}` : title}
         </div>
         <div style={{
           background: "#fff",
@@ -99,6 +120,69 @@ export default function QRCodeModal({
         }}>
           {content}
         </div>
+        
+        {/* Buttons - Copy and Next Address */}
+        {isReceiveAddressContext && (
+          <div style={{
+            display: "flex",
+            justifyContent: "center",
+            gap: 16,
+            marginTop: 20,
+          }}>
+            {/* Copy Button */}
+            <button
+              onClick={handleCopy}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                background: "none",
+                border: "1px solid #F98029",
+                borderRadius: 8,
+                padding: "12px 20px",
+                color: "#F98029",
+                cursor: "pointer",
+                transition: "background 0.2s",
+                fontSize: 14,
+                position: "relative",
+              }}
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="9" y="9" width="13" height="13" rx="2" />
+                <path d="M5 15V5a2 2 0 0 1 2-2h10" />
+              </svg>
+              <span style={{ marginTop: 8 }}>
+                {copied ? "Copied!" : "Copy"}
+              </span>
+            </button>
+            
+            {/* Next Button */}
+            {onNextAddress && (
+              <button
+                onClick={onNextAddress}
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  background: "none",
+                  border: "1px solid #F98029",
+                  borderRadius: 8,
+                  padding: "12px 20px",
+                  color: "#F98029",
+                  cursor: "pointer",
+                  transition: "background 0.2s",
+                  fontSize: 14,
+                }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+                <span style={{ marginTop: 8 }}>Next</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -33,17 +33,31 @@ export class SeedSigner {
   }
 
   get spend_address () {
-    const path = `0/${this._index}`
-    const xprv = this._acct.derive(path)
-    assert_exists(xprv.publicKey)
-    return p2pkh(xprv.publicKey)
+    try {
+      // Use m/0/index for BIP84 spend address
+      const fullPath = `m/0/${this._index}`
+      // Derive from master seed to ensure proper path format
+      const xprv = this._mstr.derive(`${this._path}/0/${this._index}`)
+      assert_exists(xprv.publicKey)
+      return p2pkh(xprv.publicKey)
+    } catch (error) {
+      console.error("Error in spend_address:", error);
+      throw error;
+    }
   }
 
   get change_address () {
-    const path = `1/${this._index}`
-    const xprv = this._acct.derive(path)
-    assert_exists(xprv.publicKey)
-    return p2pkh(xprv.publicKey)
+    try {
+      // Use m/1/index for BIP84 change address
+      const fullPath = `m/1/${this._index}`
+      // Derive from master seed to ensure proper path format
+      const xprv = this._mstr.derive(`${this._path}/1/${this._index}`)
+      assert_exists(xprv.publicKey)
+      return p2pkh(xprv.publicKey)
+    } catch (error) {
+      console.error("Error in change_address:", error);
+      throw error;
+    }
   }
 
   get wallet_index () {

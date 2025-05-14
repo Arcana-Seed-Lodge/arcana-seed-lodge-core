@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import QRCodeModal from "./QRCodeModal";
+import React, { useState, useEffect } from "react";
+import QRCodeModal, { PresentationContext } from "./QRCodeModal";
 import { SYMBOLS } from "../symbols";
 import { SeedSigner } from "../lib/signer";
 import { generate_map_seed } from "../lib/hash";
@@ -34,6 +34,48 @@ interface BitcoinWalletProps {
 export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [copied, setCopied] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showReceiveModal, setShowReceiveModal] = useState(false);
+  const [currentReceiveAddress, setCurrentReceiveAddress] = useState('');
+  
+  // Reference to signer to access in component functions
+  const signerRef = React.useRef(signer);
+
+  // Log initial state
+  useEffect(() => {
+    console.log("Component mounted");
+    try {
+      // Initialize the first address
+      getCurrentReceiveAddress();
+    } catch (error) {
+      console.error("Error in component mount:", error);
+    }
+  }, []);
+
+  // Get the current receive address and return its string representation
+  const getCurrentReceiveAddress = () => {
+    try {
+      console.log("Getting current receive address");
+      const address = signerRef.current.spend_address;
+      console.log("Spend address object:", address);
+      
+      // Get address string representation
+      // Check if address has an address property
+      if (address && address.address) {
+        console.log("Address from address property:", address.address);
+        return address.address;
+      } else if (typeof address.toString === 'function') {
+        const addressString = address.toString();
+        console.log("Address as string:", addressString);
+        return addressString;
+      } else {
+        console.error("Cannot get string representation of address", address);
+        return String(address); // Fallback conversion
+      }
+    } catch (error) {
+      console.error("Error in getCurrentReceiveAddress:", error);
+      return "Error getting address";
+    }
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(xpub);
@@ -47,6 +89,40 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
 
   const handleCloseQR = () => {
     setShowQRModal(false);
+  };
+  
+  const handleReceive = () => {
+    console.log("Receive button clicked");
+    try {
+      // Get the current receive address
+      const address = getCurrentReceiveAddress();
+      console.log("Received address:", address);
+      setCurrentReceiveAddress(address);
+      setShowReceiveModal(true);
+    } catch (error) {
+      console.error("Error in handleReceive:", error);
+    }
+  };
+  
+  const handleCloseReceive = () => {
+    setShowReceiveModal(false);
+  };
+  
+  const handleNextAddress = () => {
+    console.log("Next address button clicked");
+    try {
+      // Simply increment the signer's internal index 
+      // (the set_index method does this if no index is provided)
+      signerRef.current.set_index();
+      console.log("New index:", signerRef.current.wallet_index);
+      
+      // Get the new address based on the incremented index
+      const address = getCurrentReceiveAddress();
+      console.log("New address:", address);
+      setCurrentReceiveAddress(address);
+    } catch (error) {
+      console.error("Error in handleNextAddress:", error);
+    }
   };
 
   return (
@@ -213,23 +289,25 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
           Send
         </button>
         {/* Receive Button */}
-        <button style={{
-          background: "#181406",
-          border: "2px solid #F98029",
-          borderRadius: 16,
-          color: "#F98029",
-          width: 100,
-          height: 100,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 18,
-          fontWeight: 600,
-          boxShadow: "0 0 12px #F9802933",
-          cursor: "pointer",
-          transition: "background 0.2s, box-shadow 0.2s",
-        }}>
+        <button 
+          onClick={handleReceive}
+          style={{
+            background: "#181406",
+            border: "2px solid #F98029",
+            borderRadius: 16,
+            color: "#F98029",
+            width: 100,
+            height: 100,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 18,
+            fontWeight: 600,
+            boxShadow: "0 0 12px #F9802933",
+            cursor: "pointer",
+            transition: "background 0.2s, box-shadow 0.2s",
+          }}>
           {/* Receive Icon (SVG) */}
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
             <path d="M12 19V5" />
@@ -239,8 +317,19 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
         </button>
       </div>
       
-      {/* QR Code Modal */}
+      {/* QR Code Modal for xpub */}
       {showQRModal && <QRCodeModal onClose={handleCloseQR} content={xpub} />}
+      
+      {/* QR Code Modal for receive address */}
+      {showReceiveModal && (
+        <QRCodeModal 
+          onClose={handleCloseReceive} 
+          content={currentReceiveAddress}
+          presentationContext={PresentationContext.RECEIVE_ADDRESS_RENDERING}
+          addressIndex={signerRef.current.wallet_index}
+          onNextAddress={handleNextAddress}
+        />
+      )}
     </div>
   );
 } 
