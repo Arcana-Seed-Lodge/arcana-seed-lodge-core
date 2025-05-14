@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import QRCodeModal, { PresentationContext } from "./QRCodeModal";
+import SendConfirmModal from "./SendConfirmModal";
 import { SYMBOLS } from "../symbols";
 import { SeedSigner } from "../lib/signer";
 import { generate_map_seed } from "../lib/hash";
@@ -35,7 +36,9 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [copied, setCopied] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
   const [currentReceiveAddress, setCurrentReceiveAddress] = useState('');
+  const [signedTransaction, setSignedTransaction] = useState<string | null>(null);
   
   // Reference to signer to access in component functions
   const signerRef = React.useRef(signer);
@@ -123,6 +126,21 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
     } catch (error) {
       console.error("Error in handleNextAddress:", error);
     }
+  };
+  
+  const handleSend = () => {
+    console.log("Send button clicked");
+    setShowSendModal(true);
+  };
+  
+  const handleCloseSend = () => {
+    setShowSendModal(false);
+  };
+  
+  const handleSignComplete = (signedPsbt: string) => {
+    console.log("Transaction signed:", signedPsbt);
+    setSignedTransaction(signedPsbt);
+    // Note: In a real implementation, we might broadcast the transaction here
   };
 
   return (
@@ -264,23 +282,25 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
         marginBottom: 32,
       }}>
         {/* Send Button */}
-        <button style={{
-          background: "#181406",
-          border: "2px solid #F98029",
-          borderRadius: 16,
-          color: "#F98029",
-          width: 100,
-          height: 100,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 18,
-          fontWeight: 600,
-          boxShadow: "0 0 12px #F9802933",
-          cursor: "pointer",
-          transition: "background 0.2s, box-shadow 0.2s",
-        }}>
+        <button 
+          onClick={handleSend}
+          style={{
+            background: "#181406",
+            border: "2px solid #F98029",
+            borderRadius: 16,
+            color: "#F98029",
+            width: 100,
+            height: 100,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 18,
+            fontWeight: 600,
+            boxShadow: "0 0 12px #F9802933",
+            cursor: "pointer",
+            transition: "background 0.2s, box-shadow 0.2s",
+          }}>
           {/* Send Icon (SVG) */}
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: 8 }}>
             <path d="M22 2L11 13" />
@@ -328,6 +348,14 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
           presentationContext={PresentationContext.RECEIVE_ADDRESS_RENDERING}
           addressIndex={signerRef.current.wallet_index}
           onNextAddress={handleNextAddress}
+        />
+      )}
+      
+      {/* Send Confirm Modal */}
+      {showSendModal && (
+        <SendConfirmModal 
+          onClose={handleCloseSend} 
+          onSignComplete={handleSignComplete}
         />
       )}
     </div>
