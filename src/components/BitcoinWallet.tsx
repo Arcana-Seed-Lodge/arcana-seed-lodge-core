@@ -1,8 +1,30 @@
 import React, { useState } from "react";
-import { GenerateSeedLogic } from "../GenerateSeedLogic";
+import QRCodeModal from "./QRCodeModal";
+import { SYMBOLS } from "../symbols";
+import { SeedSigner } from "../lib/signer";
+import { generate_map_seed } from "../lib/hash";
+// import { GenerateSeedLogic } from "../GenerateSeedLogic";
 
-const seedLogic = new GenerateSeedLogic();
-const xpub = seedLogic.getSeedHex();
+// const seedLogic = new GenerateSeedLogic();
+const testGeohashes = [
+  'dp3wqdh', //B15 - End of Navy Pier
+  '9v6e6nk', //B16 - Circuit of the Americas Grand Plaza Entrance
+  '9q8yyk8', //B17 - SVN West in SF
+  'dhx48x9', //B21/22/23 Miami Beach Convention Center
+  'dn6m9q3', //B24 - Nashville Music City Center	 
+  '9qqj7pz' //B25 - The Venetian Vegas
+];
+
+const testSymbols = [
+    SYMBOLS[1],  // 👁️ All-Seeing Eye
+    SYMBOLS[2],  // 🐝 Beehive
+    SYMBOLS[5],  // 🗿 Pillar Jachin
+    SYMBOLS[6],  // 🪨 Pillar Boaz
+  ];
+
+const seed = generate_map_seed(testGeohashes, testSymbols);
+const signer = new SeedSigner(seed, { network: 'regtest' });
+const xpub = signer.account_xpub; //seedLogic.getSeedHex();
 
 // Add prop type for onBack
 interface BitcoinWalletProps {
@@ -11,11 +33,20 @@ interface BitcoinWalletProps {
 
 export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [copied, setCopied] = useState(false);
+  const [showQRModal, setShowQRModal] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(xpub);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
+  };
+
+  const handleShowQR = () => {
+    setShowQRModal(true);
+  };
+
+  const handleCloseQR = () => {
+    setShowQRModal(false);
   };
 
   return (
@@ -116,6 +147,29 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
             <path d="M5 15V5a2 2 0 0 1 2-2h10" />
           </svg>
         </button>
+        {/* QR Code Button */}
+        <button
+          onClick={handleShowQR}
+          style={{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            marginLeft: 8,
+            padding: 4,
+            display: "flex",
+            alignItems: "center",
+            color: "#F98029",
+          }}
+          aria-label="Show QR Code"
+        >
+          {/* QR Code icon (SVG) */}
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+        </button>
         {copied && (
           <span style={{
             color: "#F98029",
@@ -184,6 +238,9 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
           Receive
         </button>
       </div>
+      
+      {/* QR Code Modal */}
+      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={xpub} />}
     </div>
   );
 } 
