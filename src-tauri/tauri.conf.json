@@ -15,7 +15,7 @@
   },
   "tauri": {
     "security": {
-      "csp": "default-src 'self' https://tiles.openfreemap.org; style-src 'self' 'unsafe-inline'; connect-src 'self' https://tiles.openfreemap.org; img-src 'self' https://tiles.openfreemap.org; font-src 'self' https://tiles.openfreemap.org"
+      "csp": "default-src 'self' https://api.maptiler.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.maptiler.com; img-src 'self' https://api.maptiler.com; font-src 'self' https://api.maptiler.com"
     }
   }
 }

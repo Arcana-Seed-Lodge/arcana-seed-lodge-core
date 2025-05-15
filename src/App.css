@@ -114,3 +114,23 @@ button {
     background-color: #0f0f0f69;
   }
 }
+/* Style the MapLibre attribution at the bottom */
+.maplibregl-ctrl-attrib {
+  background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+  color: #ddd; /* Light gray text for readability on dark theme */
+  font-size: 12px; /* Smaller font size */
+  padding: 4px 8px; /* Add some padding for better appearance */
+  border-radius: 4px; /* Rounded corners */
+}
+
+/* Style the links within the attribution */
+.maplibregl-ctrl-attrib a {
+  color: #F98029; /* Orange links to match country borders */
+  text-decoration: none; /* Remove underline */
+}
+
+.maplibregl-ctrl-attrib a:hover {
+  text-decoration: underline; /* Add underline on hover for better UX */
+}
+
+/* Ensure the attribution
