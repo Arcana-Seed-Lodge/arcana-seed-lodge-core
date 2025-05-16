@@ -10,6 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
+    "@mui/material": "^7.1.0",
     "@tauri-apps/api": "^1",
     "@types/ngeohash": "^0.6.8",
     "maplibre-gl": "^5.5.0",

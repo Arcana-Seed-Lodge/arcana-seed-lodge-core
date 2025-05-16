@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import MapComponent from './MapComponent';
+import { TextField, Autocomplete, debounce } from '@mui/material';
+import maplibregl, { Map } from 'maplibre-gl';
 
 export interface GeohashMarker {
   lng: string;
@@ -7,104 +9,203 @@ export interface GeohashMarker {
   geohash: string;
 }
 
+interface SearchResult {
+  place_name: string;
+  center: [number, number];
+}
 
 export default function MapPage() {
   const [markers, setMarkers] = useState<GeohashMarker[]>([]);
-  
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const mapRef = useRef<Map | null>(null);
+
+  const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
+
   const handlers = {
     addMarker: (marker: GeohashMarker) => {
-      setMarkers((prev) => [...prev, marker])
+      setMarkers((prev) => [...prev, marker]);
     },
-  }
-  
+  };
+
+  const fetchSearchResults = useCallback(
+    debounce(async (query: string) => {
+      if (!query) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const response = await fetch(
+          `https://api.maptiler.com/geocoding/${encodeURIComponent(query)}.json?key=${mapTilerKey}`
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to fetch search results: ${response.statusText}`);
+        }
+        const data = await response.json();
+        const results = data.features.map((feature: any) => ({
+          place_name: feature.place_name,
+          center: feature.center,
+        }));
+        setSearchResults(results);
+      } catch (error) {
+        console.error('Failed to fetch search results:', error);
+      }
+    }, 300),
+    []
+  );
+
+  const handleSearchSelect = (result: SearchResult | null) => {
+    if (result && mapRef.current) {
+      const [lng, lat] = result.center;
+      mapRef.current.fire('search', { lng, lat });
+      mapRef.current.setCenter([lng, lat]);
+      // Programmatically trigger addMapFeatures
+      const mapComponent = mapRef.current.getContainer().querySelector('canvas')?.closest('.map-container') as any;
+      if (mapComponent && mapComponent.__reactFiber$) {
+        const props = mapComponent.__reactFiber$.memoizedProps;
+        if (props.addMapFeatures) {
+          props.addMapFeatures(lng, lat);
+        }
+      }
+    }
+  };
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "#181406",
-      color: "#FFA500",
-      fontFamily: "'Cinzel', serif",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "flex-start",
-      paddingTop: 40,
-      letterSpacing: 1.5,
-    }}>
-
-      {/* Main content container */}
-      <div style={{
-        display: "flex",
-        gap: 32,
-        width: "90%",
-        maxWidth: "80vw",
-        marginTop: 32,
-        maxHeight: "80vh",
-      }}>
-        {/* Map container */}
-        <div style={{
-          flex: 2,
-          background: "#1a1200",
-          borderRadius: 16,
-          padding: 16,
-          boxShadow: "0 0 12px #FFA50033",
-          minHeight: "600px",
-        }}>
-          <MapComponent markers={markers} handlers={handlers} />
+    <div
+      style={{
+        minHeight: '100vh',
+        background: '#181406',
+        color: '#FFA500',
+        fontFamily: "'Cinzel', serif",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        paddingTop: 40,
+        letterSpacing: 1.5,
+      }}
+    >
+      <div
+        style={{
+          width: '90%',
+          maxWidth: '80vw',
+          marginBottom: 16,
+        }}
+      >
+        <Autocomplete
+          freeSolo
+          options={searchResults}
+          getOptionLabel={(option) => (typeof option === 'string' ? option : option.place_name)}
+          onInputChange={(_, value) => {
+            setInputValue(value);
+            fetchSearchResults(value);
+          }}
+          onChange={(_, value) => handleSearchSelect(value as SearchResult)}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Search Location"
+              variant="outlined"
+              style={{ background: '#1a1200', color: '#FFA500' }}
+              InputLabelProps={{ style: { color: '#FFA500' } }}
+              InputProps={{
+                ...params.InputProps,
+                style: { color: '#FFA500' },
+              }}
+            />
+          )}
+        />
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          gap: 32,
+          width: '90%',
+          maxWidth: '80vw',
+          marginTop: 32,
+          maxHeight: '80vh',
+        }}
+      >
+        <div
+          style={{
+            flex: 2,
+            background: '#1a1200',
+            borderRadius: 16,
+            padding: 16,
+            boxShadow: '0 0 12px #FFA50033',
+            minHeight: '600px',
+          }}
+        >
+          <MapComponent
+            markers={markers}
+            handlers={handlers}
+            ref={(mapInstance) => {
+              mapRef.current = mapInstance;
+            }}
+          />
         </div>
-
-        {/* Geohash list container */}
-        <div style={{
-          flex: 1,
-          background: "#1a1200",
-          borderRadius: 16,
-          padding: 24,
-          boxShadow: "0 0 12px #FFA50033",
-          minHeight: "600px",
-          overflowY: "auto",
-        }}>
-          <h2 style={{
-            marginTop: 0,
-            marginBottom: 24,
-            fontSize: 24,
-            textAlign: "center",
-            textShadow: "0 0 8px #FFA50055",
-          }}>
+        <div
+          style={{
+            flex: 1,
+            background: '#1a1200',
+            borderRadius: 16,
+            padding: 24,
+            boxShadow: '0 0 12px #FFA50033',
+            minHeight: '600px',
+            overflowY: 'auto',
+          }}
+        >
+          <h2
+            style={{
+              marginTop: 0,
+              marginBottom: 24,
+              fontSize: 24,
+              textAlign: 'center',
+              textShadow: '0 0 8px #FFA50055',
+            }}
+          >
             Geohash Markers
           </h2>
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
-          }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 16,
+            }}
+          >
             {markers.map((marker, index) => (
               <div
                 key={index}
                 style={{
-                  background: "#181406",
-                  border: "1px solid #FFA50033",
+                  background: '#181406',
+                  border: '1px solid #FFA50033',
                   borderRadius: 8,
                   padding: 16,
-                  boxShadow: "0 0 8px #FFA50022",
+                  boxShadow: '0 0 8px #FFA50022',
                 }}
               >
-                <div style={{
-                  fontFamily: "monospace",
-                  fontSize: 18,
-                  marginBottom: 8,
-                  color: "#FFA500",
-                  textShadow: "0 0 4px #FFA50055",
-                }}>
+                <div
+                  style={{
+                    fontFamily: 'monospace',
+                    fontSize: 18,
+                    marginBottom: 8,
+                    color: '#FFA500',
+                    textShadow: '0 0 4px #FFA50055',
+                  }}
+                >
                   {marker.geohash}
                 </div>
               </div>
             ))}
             {markers.length === 0 && (
-              <div style={{
-                textAlign: "center",
-                color: "#FFA50055",
-                fontStyle: "italic",
-              }}>
-                Click on the map to add markers
+              <div
+                style={{
+                  textAlign: 'center',
+                  color: '#FFA50055',
+                  fontStyle: 'italic',
+                }}
+              >
+                Click on the map or search to add markers
               </div>
             )}
           </div>

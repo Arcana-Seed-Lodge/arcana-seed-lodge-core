@@ -5,7 +5,7 @@ import { MapOptions } from 'react-map-gl/mapbox';
 import * as ngeohash from 'ngeohash';
 import { GeohashMarker } from './MapPage';
 
-// Define types for map state and markers
+// Define types
 interface MapState {
   lng: number;
   lat: number;
@@ -25,13 +25,13 @@ interface MapComponentProps {
   };
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapComponentProps) => {
-  const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R'; // Replace with your MapTiler API key
+const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
+  const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
   const darkMatterStyleUrl = `https://api.maptiler.com/maps/darkmatter/style.json?key=${mapTilerKey}`;
-  const fallbackStyle = 'https://demotiles.maplibre.org/style.json'; // Fallback style
+  const fallbackStyle = 'https://demotiles.maplibre.org/style.json';
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const map = useRef<Map | null>(null);
-  const initializedRef = useRef<boolean>(false); // Ref to track initialization
+  const initializedRef = useRef<boolean>(false);
   const [mapState, setMapState] = useState<MapState>({
     lng: -115.16643, // The Venetian
     lat: 36.12107,
@@ -49,7 +49,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
   }, [mapInitialized]);
 
   useEffect(() => {
-    if (map.current || !mapContainer.current) return; // Initialize map only once
+    if (map.current || !mapContainer.current) return;
 
     const initializeMap = (style: string) => {
       try {
@@ -64,10 +64,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
           maxPitch: 0,
           minPitch: 0,
           dragRotate: false,
-          doubleClickZoom: false,
-          touchZoomRotate: false,
+          doubleClickZoom: true, // Enable for Tauri click debugging
+          touchZoomRotate: true, // Enable for touch compatibility
           keyboard: false,
           attributionControl: false,
+          interactive: true, // Ensure interactivity
         } as MapOptions);
 
         map.current.addControl(
@@ -112,7 +113,15 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
 
           // Bind click handler
           console.log('Binding click handler');
-          map.current!.on('click', handleMapClick);
+          map.current!.on('click', (e) => {
+            console.log('Raw click event:', e.lngLat, 'originalEvent:', e.originalEvent);
+            handleMapClick(e);
+          });
+
+          // Debug touch events
+          map.current!.on('touchstart', (e) => {
+            console.log('Touchstart event:', e.lngLat, 'originalEvent:', e.originalEvent);
+          });
         });
 
         map.current.on('error', (e) => {
@@ -142,13 +151,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
             });
           }
         });
-
-        // setTimeout(() => {
-        //   if (map.current) {
-        //     map.current.resize();
-        //     console.log('Map resized to force render');
-        //   }
-        // }, 3000);
       } catch (error) {
         console.error('Failed to initialize map:', error);
         setError(`Failed to initialize map: ${String(error)}`);
@@ -188,14 +190,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
     };
   }, []);
 
-  const handleMapClick = (e: maplibregl.MapMouseEvent) => {
-    console.log('Click handler called with map.current:', !!map.current, 'mapInitialized:', mapInitialized, 'initializedRef:', initializedRef.current);
+  const addMapFeatures = (lng: number, lat: number) => {
     if (!map.current || !initializedRef.current) {
-      console.warn('Map not fully loaded, ignoring click');
+      console.warn('Map not fully loaded, cannot add features');
       return;
     }
-
-    const { lng, lat } = e.lngLat;
 
     // Add point marker
     try {
@@ -216,24 +215,26 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
         ...prev,
         { lng: lng.toFixed(4), lat: lat.toFixed(4), marker },
       ]);
+
+      // Calculate geohash
+      const geohash = ngeohash.encode(lat, lng, 7);
+      handlers.addMarker({ lng: lng.toFixed(4), lat: lat.toFixed(4), geohash });
     } catch (err) {
       console.error('Failed to add marker:', err);
       setError('Failed to add marker');
       return;
     }
 
-    // Calculate geohash and bounding box
-    let geohash: string, bbox: number[];
+    // Calculate bounding box
+    let bbox: number[];
     try {
-      geohash = ngeohash.encode(lat, lng, 7); // Larger box for visibility
-      bbox = ngeohash.decode_bbox(geohash);
-      handlers.addMarker({ lng: lng.toFixed(4), lat: lat.toFixed(4), geohash });
+      bbox = ngeohash.decode_bbox(ngeohash.encode(lat, lng, 7));
     } catch (err) {
-      console.error('Failed to calculate geohash or bbox:', err);
-      setError('Failed to calculate geohash or bounding box');
+      console.error('Failed to calculate bbox:', err);
+      setError('Failed to calculate bounding box');
       return;
     }
-    const lastChar = geohash.slice(-1);
+    const lastChar = ngeohash.encode(lat, lng, 7).slice(-1);
     const [minLat, minLng, maxLat, maxLng] = bbox;
 
     console.log('Bounding box coordinates:', { minLat, minLng, maxLat, maxLng });
@@ -297,42 +298,32 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
       return;
     }
 
-    // Wait for source to load before adding layer
-    const onSourceData = () => {
-      if (map.current && map.current.isSourceLoaded('geohash-bbox')) {
-        console.log('geohash-bbox source loaded');
-        try {
-          map.current!.addLayer({
-            id: 'geohash-bbox',
-            type: 'line',
-            source: 'geohash-bbox',
-            layout: {
-              'line-join': 'round',
-              'line-cap': 'round',
-            },
-            paint: {
-              'line-color': '#ff0000', // Brighter red for visibility
-              'line-width': 5, // Thicker line
-              'line-opacity': 1, // Start visible to test
-            },
-          }, 'road-label'); // Add above road labels
-          console.log('Added geohash-bbox layer');
-          console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
-        } catch (err) {
-          console.error('Failed to add geohash-bbox layer:', err);
-          setError('Failed to add bounding box layer');
-          if (map.current) {
-            console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
-          }
-        } finally {
-          map.current!.off('sourcedata', onSourceData); // Remove listener
-        }
-      }
-    };
+    // Add bounding box layer
+    try {
+      console.log('Attempting to add geohash-bbox layer');
+      map.current.addLayer({
+        id: 'geohash-bbox',
+        type: 'line',
+        source: 'geohash-bbox',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#ff0000',
+          'line-width': 5,
+          'line-opacity': 1,
+        },
+      });
+      console.log('Added geohash-bbox layer');
+      console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
+    } catch (err) {
+      console.error('Failed to add geohash-bbox layer:', err);
+      setError('Failed to add bounding box layer');
+      return;
+    }
 
-    map.current!.on('sourcedata', onSourceData);
-
-    // Add last character as a rune-like text marker
+    // Add rune
     let textElement: HTMLDivElement | null = null;
     try {
       textElement = document.createElement('div');
@@ -341,8 +332,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
       textElement.style.fontSize = '20px';
       textElement.style.fontWeight = 'bold';
       textElement.style.textShadow = '0 0 8px #ff0000, 0 0 16px #ff0000';
-      textElement.style.opacity = '0';
-      textElement.style.transition = 'opacity 1s';
+      textElement.style.opacity = '1';
       textElement.style.pointerEvents = 'none';
       textElement.style.zIndex = '2000';
       textElement.textContent = lastChar;
@@ -360,7 +350,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
       return;
     }
 
-    // Animation logic
+    // Animation
     const animationDuration = 1000;
     const startTime = performance.now();
 
@@ -378,7 +368,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
         }
       }
 
-      if (textMarkerRef.current) {
+      if (textElement) {
         textElement.style.opacity = `${progress}`;
       }
 
@@ -393,9 +383,21 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapCom
     animationRef.current = requestAnimationFrame(animateFade);
   };
 
+  const handleMapClick = (e: maplibregl.MapMouseEvent) => {
+    console.log('Click handler called with map.current:', !!map.current, 'mapInitialized:', mapInitialized, 'initializedRef:', initializedRef.current);
+    if (!map.current || !initializedRef.current) {
+      console.warn('Map not fully loaded, ignoring click');
+      return;
+    }
+
+    const { lng, lat } = e.lngLat;
+    addMapFeatures(lng, lat);
+  };
+
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
-      <div ref={mapContainer} style={{ width: '50vw', height: '38vw', position: 'relative'}} />
+      <div ref={mapContainer} style={{ width: '50vw', height: '38vw', position: 'relative' }} />
+      {error && <div style={{ color: 'red', position: 'absolute', top: 10, left: 10 }}>{error}</div>}
     </div>
   );
 };
