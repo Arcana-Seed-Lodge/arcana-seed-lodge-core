@@ -70,8 +70,8 @@ const MapComponent: React.FC = () => {
 
         map.current.on('load', () => {
           console.log('Map fully loaded, map.current:', !!map.current);
-          initializedRef.current = true; // Set ref
-          setMapInitialized(true); // Set state
+          initializedRef.current = true;
+          setMapInitialized(true);
           console.log('Setting mapInitialized to true');
 
           if (map.current) {
@@ -135,12 +135,12 @@ const MapComponent: React.FC = () => {
           }
         });
 
-        setTimeout(() => {
-          if (map.current) {
-            map.current.resize();
-            console.log('Map resized to force render');
-          }
-        }, 3000);
+        // setTimeout(() => {
+        //   if (map.current) {
+        //     map.current.resize();
+        //     console.log('Map resized to force render');
+        //   }
+        // }, 3000);
       } catch (error) {
         console.error('Failed to initialize map:', error);
         setError(`Failed to initialize map: ${String(error)}`);
@@ -219,7 +219,7 @@ const MapComponent: React.FC = () => {
     // Calculate geohash and bounding box
     let geohash: string, bbox: number[];
     try {
-      geohash = ngeohash.encode(lat, lng, 6);
+      geohash = ngeohash.encode(lat, lng, 5); // Larger box for visibility
       bbox = ngeohash.decode_bbox(geohash);
     } catch (err) {
       console.error('Failed to calculate geohash or bbox:', err);
@@ -230,9 +230,7 @@ const MapComponent: React.FC = () => {
     const [minLat, minLng, maxLat, maxLng] = bbox;
 
     console.log('Bounding box coordinates:', { minLat, minLng, maxLat, maxLng });
-
-    // Define GeoJSON LineString for bounding box edge
-    const bboxGeoJSON: GeoJSON.Feature<GeoJSON.LineString> = {
+    console.log('GeoJSON for bounding box:', JSON.stringify({
       type: 'Feature',
       properties: {},
       geometry: {
@@ -245,7 +243,7 @@ const MapComponent: React.FC = () => {
           [minLng, minLat],
         ],
       },
-    };
+    }, null, 2));
 
     // Clean up existing layers and sources
     try {
@@ -270,7 +268,20 @@ const MapComponent: React.FC = () => {
     try {
       map.current.addSource('geohash-bbox', {
         type: 'geojson',
-        data: bboxGeoJSON,
+        data: {
+          type: 'Feature',
+          properties: {},
+          geometry: {
+            type: 'LineString',
+            coordinates: [
+              [minLng, minLat],
+              [maxLng, minLat],
+              [maxLng, maxLat],
+              [minLng, maxLat],
+              [minLng, minLat],
+            ],
+          },
+        },
       });
       console.log('Added geohash-bbox source');
     } catch (err) {
@@ -279,40 +290,50 @@ const MapComponent: React.FC = () => {
       return;
     }
 
-    // Add bounding box edge layer
-    try {
-      map.current.addLayer({
-        id: 'geohash-bbox',
-        type: 'line',
-        source: 'geohash-bbox',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round',
-        },
-        paint: {
-          'line-color': '#ff4500',
-          'line-width': 3,
-          'line-opacity': 0, // Fade-in animation
-        },
-      });
-      console.log('Added geohash-bbox layer');
-    } catch (err) {
-      console.error('Failed to add geohash-bbox layer:', err);
-      setError('Failed to add bounding box layer');
-      if (map.current) {
-        console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
+    // Wait for source to load before adding layer
+    const onSourceData = () => {
+      if (map.current && map.current.isSourceLoaded('geohash-bbox')) {
+        console.log('geohash-bbox source loaded');
+        try {
+          map.current!.addLayer({
+            id: 'geohash-bbox',
+            type: 'line',
+            source: 'geohash-bbox',
+            layout: {
+              'line-join': 'round',
+              'line-cap': 'round',
+            },
+            paint: {
+              'line-color': '#ff0000', // Brighter red for visibility
+              'line-width': 5, // Thicker line
+              'line-opacity': 1, // Start visible to test
+            },
+          }, 'road-label'); // Add above road labels
+          console.log('Added geohash-bbox layer');
+          console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
+        } catch (err) {
+          console.error('Failed to add geohash-bbox layer:', err);
+          setError('Failed to add bounding box layer');
+          if (map.current) {
+            console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
+          }
+        } finally {
+          map.current!.off('sourcedata', onSourceData); // Remove listener
+        }
       }
-      return;
-    }
+    };
+
+    map.current!.on('sourcedata', onSourceData);
 
     // Add last character as a rune-like text marker
+    let textElement: HTMLDivElement | null = null;
     try {
-      const textElement = document.createElement('div');
-      textElement.style.color = '#ff4500';
+      textElement = document.createElement('div');
+      textElement.style.color = '#ff0000';
       textElement.style.fontFamily = 'monospace';
       textElement.style.fontSize = '20px';
       textElement.style.fontWeight = 'bold';
-      textElement.style.textShadow = '0 0 8px #ff4500, 0 0 16px #ff4500';
+      textElement.style.textShadow = '0 0 8px #ff0000, 0 0 16px #ff0000';
       textElement.style.opacity = '0';
       textElement.style.transition = 'opacity 1s';
       textElement.style.pointerEvents = 'none';
@@ -341,6 +362,7 @@ const MapComponent: React.FC = () => {
       const progress = Math.min(elapsed / animationDuration, 1);
 
       if (map.current && map.current.getLayer('geohash-bbox')) {
+        console.log('Setting line-opacity to:', progress);
         map.current.setPaintProperty('geohash-bbox', 'line-opacity', progress);
       } else {
         console.warn('geohash-bbox layer not found during animation');
@@ -365,26 +387,8 @@ const MapComponent: React.FC = () => {
   };
 
   return (
-    <div>
-      <div ref={mapContainer} style={{ width: '100%', height: '600px' }} />
-      <div>
-        <h3>Map State</h3>
-        <p>Longitude: {mapState.lng}</p>
-        <p>Latitude: {mapState.lat}</p>
-        <p>Zoom: {mapState.zoom}</p>
-      </div>
-      <div>
-        <h3>Markers</h3>
-        <ul>
-          {markers.map((marker, index) => (
-            <li key={index}>
-              Marker {index + 1}: ({marker.lat}, {marker.lng})
-            </li>
-          ))}
-        </ul>
-      </div>
-      {!mapInitialized && !error && <p>Loading map...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+      <div ref={mapContainer} style={{ width: '50vw', height: '38vw', position: 'relative'}} />
     </div>
   );
 };

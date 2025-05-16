@@ -2,20 +2,18 @@
   "build": {
     "beforeDevCommand": "npm run dev",
     "beforeBuildCommand": "npm run build",
-    "devUrl": "http://localhost:3000"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "MapLibreApp",
-        "width": 800,
-        "height": 600
-      }
-    ]
+    "devPath": "http://localhost:1420"
   },
   "tauri": {
     "security": {
-      "csp": "default-src 'self' https://api.maptiler.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.maptiler.com; img-src 'self' https://api.maptiler.com; font-src 'self' https://api.maptiler.com"
-    }
+      "csp": "default-src 'self' https://api.maptiler.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://api.maptiler.com ws://localhost:1420; img-src 'self' https://api.maptiler.com data:; font-src 'self' https://api.maptiler.com; script-src 'self' 'unsafe-inline'"
+    },
+    "windows": [
+      {
+        "title": "Arcana Seed Lodge",
+        "width": 1600,
+        "height": 900
+      }
+    ]
   }
 }

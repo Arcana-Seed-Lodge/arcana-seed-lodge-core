@@ -1,12 +1,12 @@
 import './App.css';
 import BitcoinWallet from './BitcoinWallet';
-import MapComponent from './MapComponent';
+import MapPage from './MapPage';
 
 export default function App() {
   return (
     <div>
-      <BitcoinWallet />
-      <MapComponent />
+      {/* <BitcoinWallet /> */}
+      <MapPage />
     </div>
   );
 }
