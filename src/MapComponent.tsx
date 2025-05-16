@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, forwardRef, useImperativeHandle } from 'react';
 import maplibregl, { Map, Marker, AttributionControl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapOptions } from 'react-map-gl/mapbox';
@@ -12,10 +12,9 @@ interface MapState {
   zoom: number;
 }
 
-interface MarkerData {
-  lng: string;
-  lat: string;
-  marker: Marker;
+export interface MapComponentRef {
+  getMap: () => Map | null;
+  addMapFeatures: (lng: number, lat: number) => void;
 }
 
 interface MapComponentProps {
@@ -25,7 +24,7 @@ interface MapComponentProps {
   };
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
+const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, handlers }, ref) => {
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
   const darkMatterStyleUrl = `https://api.maptiler.com/maps/darkmatter/style.json?key=${mapTilerKey}`;
   const fallbackStyle = 'https://demotiles.maplibre.org/style.json';
@@ -37,16 +36,14 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
     lat: 36.12107,
     zoom: 16,
   });
-  const [localMarkers, setLocalMarkers] = useState<MarkerData[]>([]);
-  const [mapInitialized, setMapInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
   const textMarkerRef = useRef<Marker | null>(null);
 
   // Log state changes
   useEffect(() => {
-    console.log('mapInitialized state changed:', mapInitialized);
-  }, [mapInitialized]);
+    console.log('mapInitialized state changed:', initializedRef.current);
+  }, [initializedRef.current]);
 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
@@ -64,11 +61,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
           maxPitch: 0,
           minPitch: 0,
           dragRotate: false,
-          doubleClickZoom: true, // Enable for Tauri click debugging
-          touchZoomRotate: true, // Enable for touch compatibility
+          doubleClickZoom: true,
+          touchZoomRotate: true,
           keyboard: false,
           attributionControl: false,
-          interactive: true, // Ensure interactivity
+          interactive: true,
         } as MapOptions);
 
         map.current.addControl(
@@ -80,7 +77,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
         map.current.on('load', () => {
           console.log('Map fully loaded, map.current:', !!map.current);
           initializedRef.current = true;
-          setMapInitialized(true);
           console.log('Setting mapInitialized to true');
 
           if (map.current) {
@@ -210,11 +206,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
         .setLngLat([lng, lat])
         .addTo(map.current);
       console.log('Marker added at:', lng, lat);
-
-      setLocalMarkers((prev) => [
-        ...prev,
-        { lng: lng.toFixed(4), lat: lat.toFixed(4), marker },
-      ]);
 
       // Calculate geohash
       const geohash = ngeohash.encode(lat, lng, 7);
@@ -384,7 +375,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
   };
 
   const handleMapClick = (e: maplibregl.MapMouseEvent) => {
-    console.log('Click handler called with map.current:', !!map.current, 'mapInitialized:', mapInitialized, 'initializedRef:', initializedRef.current);
+    console.log('Click handler called with map.current:', !!map.current, 'initializedRef:', initializedRef.current);
     if (!map.current || !initializedRef.current) {
       console.warn('Map not fully loaded, ignoring click');
       return;
@@ -394,12 +385,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }) => {
     addMapFeatures(lng, lat);
   };
 
+  useImperativeHandle(ref, () => ({
+    getMap: () => map.current,
+    addMapFeatures,
+  }), [map.current]);
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
+    <div className="map-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
       <div ref={mapContainer} style={{ width: '50vw', height: '38vw', position: 'relative' }} />
       {error && <div style={{ color: 'red', position: 'absolute', top: 10, left: 10 }}>{error}</div>}
     </div>
   );
-};
+});
 
 export default MapComponent;

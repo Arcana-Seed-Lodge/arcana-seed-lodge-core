@@ -1,5 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
-import MapComponent from './MapComponent';
+import React, { useState, useCallback, useRef, MutableRefObject } from 'react';
+import MapComponent, { MapComponentRef } from './MapComponent';
 import { TextField, Autocomplete, debounce } from '@mui/material';
 import maplibregl, { Map } from 'maplibre-gl';
 
@@ -18,13 +18,14 @@ export default function MapPage() {
   const [markers, setMarkers] = useState<GeohashMarker[]>([]);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [inputValue, setInputValue] = useState('');
-  const mapRef = useRef<Map | null>(null);
+  const mapRef = useRef<MapComponentRef>(null) as MutableRefObject<MapComponentRef | null>;
 
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
 
   const handlers = {
     addMarker: (marker: GeohashMarker) => {
       setMarkers((prev) => [...prev, marker]);
+      console.log('**********', markers)
     },
   };
 
@@ -55,17 +56,12 @@ export default function MapPage() {
   );
 
   const handleSearchSelect = (result: SearchResult | null) => {
-    if (result && mapRef.current) {
+    if (result && mapRef.current?.getMap()) {
       const [lng, lat] = result.center;
-      mapRef.current.fire('search', { lng, lat });
-      mapRef.current.setCenter([lng, lat]);
-      // Programmatically trigger addMapFeatures
-      const mapComponent = mapRef.current.getContainer().querySelector('canvas')?.closest('.map-container') as any;
-      if (mapComponent && mapComponent.__reactFiber$) {
-        const props = mapComponent.__reactFiber$.memoizedProps;
-        if (props.addMapFeatures) {
-          props.addMapFeatures(lng, lat);
-        }
+      const map = mapRef.current.getMap();
+      if (map) {
+        map.setCenter([lng, lat]);
+        mapRef.current.addMapFeatures(lng, lat); // Directly call addMapFeatures
       }
     }
   };
@@ -139,9 +135,7 @@ export default function MapPage() {
           <MapComponent
             markers={markers}
             handlers={handlers}
-            ref={(mapInstance) => {
-              mapRef.current = mapInstance;
-            }}
+            ref={mapRef}
           />
         </div>
         <div
