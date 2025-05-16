@@ -3,6 +3,7 @@ import maplibregl, { Map, Marker, AttributionControl } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapOptions } from 'react-map-gl/mapbox';
 import * as ngeohash from 'ngeohash';
+import { GeohashMarker } from './MapPage';
 
 // Define types for map state and markers
 interface MapState {
@@ -17,7 +18,14 @@ interface MarkerData {
   marker: Marker;
 }
 
-const MapComponent: React.FC = () => {
+interface MapComponentProps {
+  markers: GeohashMarker[];
+  handlers: {
+    addMarker: (marker: GeohashMarker) => void;
+  };
+}
+
+const MapComponent: React.FC<MapComponentProps> = ({ markers, handlers }: MapComponentProps) => {
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R'; // Replace with your MapTiler API key
   const darkMatterStyleUrl = `https://api.maptiler.com/maps/darkmatter/style.json?key=${mapTilerKey}`;
   const fallbackStyle = 'https://demotiles.maplibre.org/style.json'; // Fallback style
@@ -29,7 +37,7 @@ const MapComponent: React.FC = () => {
     lat: 36.12107,
     zoom: 16,
   });
-  const [markers, setMarkers] = useState<MarkerData[]>([]);
+  const [localMarkers, setLocalMarkers] = useState<MarkerData[]>([]);
   const [mapInitialized, setMapInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
@@ -187,8 +195,6 @@ const MapComponent: React.FC = () => {
       return;
     }
 
-    console.log('Map clicked at:', e.lngLat);
-
     const { lng, lat } = e.lngLat;
 
     // Add point marker
@@ -206,7 +212,7 @@ const MapComponent: React.FC = () => {
         .addTo(map.current);
       console.log('Marker added at:', lng, lat);
 
-      setMarkers((prev) => [
+      setLocalMarkers((prev) => [
         ...prev,
         { lng: lng.toFixed(4), lat: lat.toFixed(4), marker },
       ]);
@@ -219,8 +225,9 @@ const MapComponent: React.FC = () => {
     // Calculate geohash and bounding box
     let geohash: string, bbox: number[];
     try {
-      geohash = ngeohash.encode(lat, lng, 5); // Larger box for visibility
+      geohash = ngeohash.encode(lat, lng, 7); // Larger box for visibility
       bbox = ngeohash.decode_bbox(geohash);
+      handlers.addMarker({ lng: lng.toFixed(4), lat: lat.toFixed(4), geohash });
     } catch (err) {
       console.error('Failed to calculate geohash or bbox:', err);
       setError('Failed to calculate geohash or bounding box');

@@ -1,15 +1,22 @@
 import React, { useState } from 'react';
 import MapComponent from './MapComponent';
 
-interface GeohashMarker {
+export interface GeohashMarker {
   lng: string;
   lat: string;
   geohash: string;
 }
 
+
 export default function MapPage() {
   const [markers, setMarkers] = useState<GeohashMarker[]>([]);
-
+  
+  const handlers = {
+    addMarker: (marker: GeohashMarker) => {
+      setMarkers((prev) => [...prev, marker])
+    },
+  }
+  
   return (
     <div style={{
       minHeight: "100vh",
@@ -42,7 +49,7 @@ export default function MapPage() {
           boxShadow: "0 0 12px #FFA50033",
           minHeight: "600px",
         }}>
-          <MapComponent />
+          <MapComponent markers={markers} handlers={handlers} />
         </div>
 
         {/* Geohash list container */}
@@ -88,18 +95,6 @@ export default function MapPage() {
                   textShadow: "0 0 4px #FFA50055",
                 }}>
                   {marker.geohash}
-                </div>
-                <div style={{
-                  fontSize: 14,
-                  color: "#FFA50099",
-                }}>
-                  Lat: {marker.lat}
-                </div>
-                <div style={{
-                  fontSize: 14,
-                  color: "#FFA50099",
-                }}>
-                  Lng: {marker.lng}
                 </div>
               </div>
             ))}
