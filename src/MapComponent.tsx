@@ -49,7 +49,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   const markerRefs = useRef<MarkerData[]>([]);
 
   useEffect(() => {
-    console.log('mapInitialized state changed:', initializedRef.current);
   }, [initializedRef.current]);
 
   useEffect(() => {
@@ -57,7 +56,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
     const initializeMap = (style: string) => {
       try {
-        console.log('Initializing map with style:', style);
         map.current = new maplibregl.Map({
           container: mapContainer.current!,
           style,
@@ -82,9 +80,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
         );
 
         map.current.on('load', () => {
-          console.log('Map fully loaded, map.current:', !!map.current);
           initializedRef.current = true;
-          console.log('Setting mapInitialized to true');
 
           if (map.current) {
             const borderLayers = map.current
@@ -114,21 +110,10 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
             });
           }
 
-          console.log('Binding click handler');
           map.current!.on('click', (e) => {
-            console.log('Raw click event:', e.lngLat, 'originalEvent:', e.originalEvent);
             handleMapClick(e);
           });
 
-          map.current!.on('touchstart', (e) => {
-            console.log('Touchstart event:', e.lngLat, 'originalEvent:', e.originalEvent);
-          });
-          map.current!.on('mousedown', (e) => {
-            console.log('Mousedown event:', e.lngLat, 'originalEvent:', e.originalEvent);
-          });
-          map.current!.on('pointerdown', (e) => {
-            console.log('Pointerdown event:', e.lngLat, 'originalEvent:', e.originalEvent);
-          });
         });
 
         map.current.on('error', (e) => {
@@ -139,14 +124,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
         map.current.on('sourcedataerror', (e) => {
           console.error('Source data error:', e);
           setError(`Source data error: ${JSON.stringify(e)}`);
-        });
-
-        map.current.on('tileload', (e) => {
-          console.log('Tile loaded:', e);
-        });
-
-        map.current.on('sourcedataloading', (e) => {
-          console.log('Source data loading:', e);
         });
 
         map.current.on('move', () => {
@@ -164,23 +141,19 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       }
     };
 
-    console.log('Fetching style:', darkMatterStyleUrl);
     fetch(darkMatterStyleUrl)
       .then((response) => {
-        console.log('Style fetch response:', response.status, response.statusText);
         if (!response.ok) {
           throw new Error(`Failed to fetch style: ${response.status} ${response.statusText}`);
         }
         return response.json();
       })
       .then((style) => {
-        console.log('Style JSON fetched successfully');
         initializeMap(darkMatterStyleUrl);
       })
       .catch((error) => {
         console.error('Failed to fetch Dark Matter style:', error);
         setError(`Failed to fetch Dark Matter style: ${String(error)}`);
-        console.log('Using fallback style:', fallbackStyle);
         initializeMap(fallbackStyle);
       });
 
@@ -225,7 +198,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       const marker = new maplibregl.Marker({ element: markerElement })
         .setLngLat([lng, lat])
         .addTo(map.current);
-      console.log('Marker added at:', lng, lat);
 
       // Calculate geohash
       geohash = ngeohash.encode(lat, lng, 7);
@@ -253,36 +225,17 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     const lastChar = geohash.slice(-1);
     const [minLat, minLng, maxLat, maxLng] = bbox;
 
-    console.log('Bounding box coordinates:', { minLat, minLng, maxLat, maxLng });
-    console.log('GeoJSON for bounding box:', JSON.stringify({
-      type: 'Feature',
-      properties: {},
-      geometry: {
-        type: 'LineString',
-        coordinates: [
-          [minLng, minLat],
-          [maxLng, minLat],
-          [maxLng, maxLat],
-          [minLng, maxLat],
-          [minLng, minLat],
-        ],
-      },
-    }, null, 2));
-
     // Clean up existing layers and sources
     try {
       if (map.current.getLayer('geohash-bbox')) {
         map.current.removeLayer('geohash-bbox');
-        console.log('Removed existing geohash-bbox layer');
       }
       if (map.current.getSource('geohash-bbox')) {
         map.current.removeSource('geohash-bbox');
-        console.log('Removed existing geohash-bbox source');
       }
       if (textMarkerRef.current) {
         textMarkerRef.current.remove();
         textMarkerRef.current = null;
-        console.log('Removed existing text marker');
       }
     } catch (err) {
       console.error('Error during cleanup:', err);
@@ -307,7 +260,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
           },
         },
       });
-      console.log('Added geohash-bbox source');
     } catch (err) {
       console.error('Failed to add geohash-bbox source:', err);
       setError('Failed to add bounding box source');
@@ -317,7 +269,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
     // Add bounding box layer
     try {
-      console.log('Attempting to add geohash-bbox layer');
       map.current.addLayer({
         id: 'geohash-bbox',
         type: 'line',
@@ -332,8 +283,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
           'line-opacity': 0,
         },
       });
-      console.log('Added geohash-bbox layer');
-      console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
     } catch (err) {
       console.error('Failed to add geohash-bbox layer:', err);
       setError('Failed to add bounding box layer');
@@ -361,7 +310,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       textMarkerRef.current = new maplibregl.Marker({ element: textElement })
         .setLngLat([centerLng, centerLat])
         .addTo(map.current);
-      console.log('Added text marker');
     } catch (err) {
       console.error('Failed to add text marker:', err);
       setError('Failed to add text marker');
@@ -383,11 +331,8 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       const elapsed = Math.max(0, currentTime - startTime);
       const progress = Math.max(0, Math.min(elapsed / animationDuration, 1));
 
-      console.log('Animation progress:', { progress, elapsed, currentTime, startTime });
-
       try {
         map.current.setPaintProperty('geohash-bbox', 'line-opacity', progress);
-        console.log('Set line-opacity to:', progress);
       } catch (err) {
         console.error('Failed to set line-opacity:', err);
         setError(`Failed to set line-opacity: ${String(err)}`);
@@ -400,7 +345,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       if (progress < 1 && animationRef.current) {
         animationRef.current = requestAnimationFrame(animateFade);
       } else {
-        console.log('Animation completed');
         isAddingFeatures.current = false;
       }
     };
@@ -428,23 +372,19 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       if (markerData) {
         markerData.marker.remove();
         markerRefs.current = markerRefs.current.filter((m) => m.geohash !== geohash);
-        console.log('Removed marker for geohash:', geohash);
       }
 
       // Clear bounding box and rune if no markers remain
       if (markerRefs.current.length === 0) {
         if (map.current.getLayer('geohash-bbox')) {
           map.current.removeLayer('geohash-bbox');
-          console.log('Removed geohash-bbox layer');
         }
         if (map.current.getSource('geohash-bbox')) {
           map.current.removeSource('geohash-bbox');
-          console.log('Removed geohash-bbox source');
         }
         if (textMarkerRef.current) {
           textMarkerRef.current.remove();
           textMarkerRef.current = null;
-          console.log('Removed text marker');
         }
       }
     } catch (err) {
@@ -454,7 +394,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   };
 
   const handleMapClick = (e: maplibregl.MapMouseEvent) => {
-    console.log('Click handler called with map.current:', !!map.current, 'initializedRef:', initializedRef.current);
     if (!map.current || !initializedRef.current) {
       console.warn('Map not fully loaded, ignoring click');
       return;
