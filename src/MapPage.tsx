@@ -289,7 +289,7 @@ export default function MapPage() {
       </div>
       <Snackbar
         open={snackbarOpen}
-        autoHideDuration={null}
+        autoHideDuration={10000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
@@ -310,7 +310,7 @@ export default function MapPage() {
             },
           }}
         >
-          You cannot have more than 6 hashes. Please remove some hashes before adding more.
+          You cannot have more than 6 hashes.
         </Alert>
       </Snackbar>
     </div>
