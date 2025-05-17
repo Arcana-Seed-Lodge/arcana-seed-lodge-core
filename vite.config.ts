@@ -18,4 +18,33 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'maplibre': ['maplibre-gl'],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ['maplibre-gl'],
+    exclude: ['@maplibre/maplibre-gl-style-spec'],
+    esbuildOptions: {
+      sourcemap: false,
+    },
+  },
+  resolve: {
+    dedupe: ['maplibre-gl'],
+    alias: {
+      '@maplibre/maplibre-gl-style-spec': '@maplibre/maplibre-gl-style-spec/dist/index.mjs',
+    },
+  },
+  css: {
+    devSourcemap: false,
+  },
+  esbuild: {
+    sourcemap: false,
+  },
 }));
