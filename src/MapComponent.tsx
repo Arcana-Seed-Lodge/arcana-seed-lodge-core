@@ -170,6 +170,24 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     };
   }, []);
 
+  useEffect(() => {
+    if (!map.current) return;
+  
+    // Remove markers not in props
+    markerRefs.current.forEach(({ geohash }) => {
+      if (!markers.some((m) => m.geohash === geohash)) {
+        removeMarker(geohash);
+      }
+    });
+  
+    // Add missing markers (if needed)
+    markers.forEach((marker) => {
+      if (!markerRefs.current.some((m) => m.geohash === marker.geohash)) {
+        addMapFeatures(Number(marker.lng), Number(marker.lat));
+      }
+    });
+  }, [markers]);
+
   const addMapFeatures = (lng: number, lat: number) => {
     if (!map.current || !initializedRef.current) {
       console.warn('Map not fully loaded, cannot add features');
@@ -188,7 +206,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     try {
       // Add point marker
       const markerElement = document.createElement('div');
-      markerElement.style.backgroundColor = '#2ecc71';
+      markerElement.style.backgroundColor = '#ff0000';
       markerElement.style.width = '12px';
       markerElement.style.height = '12px';
       markerElement.style.borderRadius = '50%';
