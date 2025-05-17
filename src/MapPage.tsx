@@ -38,6 +38,16 @@ export default function MapPage() {
     }
   };
 
+  const clearAllHashes = () => {
+    setMarkers([]);
+    if (mapRef.current) {
+      // Remove all markers from the map
+      markers.forEach(marker => {
+        mapRef.current?.removeMarker(marker.geohash);
+      });
+    }
+  };
+
   const handlers = {
     addMarker: (marker: GeohashMarker) => {
       if (markers.length >= 6) {
@@ -267,7 +277,22 @@ export default function MapPage() {
               </div>
 
             )}
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 16 }}>
+              <Button 
+                variant="outlined"
+                fullWidth
+                onClick={clearAllHashes}
+                sx={{
+                  color: '#FFA500',
+                  borderColor: '#FFA50033',
+                  '&:hover': {
+                    borderColor: '#FFA500',
+                    backgroundColor: '#FFA50011'
+                  }
+                }}
+              >
+                Clear All
+              </Button>
               <Button 
                 variant="outlined"
                 fullWidth
@@ -278,6 +303,11 @@ export default function MapPage() {
                   '&:hover': {
                     borderColor: '#FFA500',
                     backgroundColor: '#FFA50011'
+                  },
+                  '&.Mui-disabled': {
+                    color: '#FFA50055',
+                    borderColor: '#FFA50022',
+                    backgroundColor: '#FFA50008'
                   }
                 }}
               >
