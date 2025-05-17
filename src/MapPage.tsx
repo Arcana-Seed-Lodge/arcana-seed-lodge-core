@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, MutableRefObject } from 'react';
 import MapComponent, { MapComponentRef } from './MapComponent';
-import { TextField, Autocomplete, debounce } from '@mui/material';
-import maplibregl, { Map } from 'maplibre-gl';
+import { TextField, Autocomplete, debounce, IconButton } from '@mui/material';
+import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 export interface GeohashMarker {
   lng: string;
@@ -22,10 +22,14 @@ export default function MapPage() {
 
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
 
+  const removeMarker = (e: React.MouseEvent<HTMLButtonElement>, geohash: string) => {
+    e.stopPropagation();
+    setMarkers((prev) => prev.filter((marker) => marker.geohash !== geohash));
+  };
+
   const handlers = {
     addMarker: (marker: GeohashMarker) => {
       setMarkers((prev) => [...prev, marker]);
-      console.log('**********', markers)
     },
   };
 
@@ -60,7 +64,7 @@ export default function MapPage() {
       const [lng, lat] = result.center;
       const map = mapRef.current.getMap();
       if (map) {
-        map.setCenter([lng, lat]);
+        map.flyTo({ center: [lng, lat], zoom: 16 });
         mapRef.current.addMapFeatures(lng, lat); // Directly call addMapFeatures
       }
     }
@@ -97,16 +101,42 @@ export default function MapPage() {
             fetchSearchResults(value);
           }}
           onChange={(_, value) => handleSearchSelect(value as SearchResult)}
+          slotProps={{
+            paper: {
+              sx: {
+                background: '#1a1200',
+                color: '#FFA500',
+                '& .MuiAutocomplete-option': {
+                  color: '#FFA500',
+                  '&:hover': {
+                    background: '#FFA50033',
+                  },
+                  '&[aria-selected="true"]': {
+                    background: '#FFA50022',
+                  },
+                },
+              },
+            },
+          }}
           renderInput={(params) => (
             <TextField
               {...params}
               label="Search Location"
               variant="outlined"
               style={{ background: '#1a1200', color: '#FFA500' }}
-              InputLabelProps={{ style: { color: '#FFA500' } }}
+              InputLabelProps={{
+                style: { color: '#FFA500' },
+              }}
               InputProps={{
                 ...params.InputProps,
                 style: { color: '#FFA500' },
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: '#FFA500',
+                  },
+                },
               }}
             />
           )}
@@ -176,6 +206,9 @@ export default function MapPage() {
                   borderRadius: 8,
                   padding: 16,
                   boxShadow: '0 0 8px #FFA50022',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}
               >
                 <div
@@ -189,6 +222,9 @@ export default function MapPage() {
                 >
                   {marker.geohash}
                 </div>
+                <IconButton onClick={(e) => removeMarker(e, marker.geohash)}>
+                  <WhatshotIcon sx={{ color: '#FFA500' }} />
+                </IconButton>
               </div>
             ))}
             {markers.length === 0 && (

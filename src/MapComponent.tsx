@@ -12,9 +12,15 @@ interface MapState {
   zoom: number;
 }
 
+interface MarkerData {
+  geohash: string;
+  marker: Marker;
+}
+
 export interface MapComponentRef {
   getMap: () => Map | null;
   addMapFeatures: (lng: number, lat: number) => void;
+  removeMarker: (geohash: string) => void;
 }
 
 interface MapComponentProps {
@@ -39,9 +45,9 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   const [error, setError] = useState<string | null>(null);
   const animationRef = useRef<number | null>(null);
   const textMarkerRef = useRef<Marker | null>(null);
-  const isAddingFeatures = useRef<boolean>(false); // Flag to prevent reentrant calls
+  const isAddingFeatures = useRef<boolean>(false);
+  const markerRefs = useRef<MarkerData[]>([]);
 
-  // Log state changes
   useEffect(() => {
     console.log('mapInitialized state changed:', initializedRef.current);
   }, [initializedRef.current]);
@@ -108,14 +114,12 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
             });
           }
 
-          // Bind click handler
           console.log('Binding click handler');
           map.current!.on('click', (e) => {
             console.log('Raw click event:', e.lngLat, 'originalEvent:', e.originalEvent);
             handleMapClick(e);
           });
 
-          // Debug additional input events
           map.current!.on('touchstart', (e) => {
             console.log('Touchstart event:', e.lngLat, 'originalEvent:', e.originalEvent);
           });
@@ -205,6 +209,8 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     }
 
     isAddingFeatures.current = true;
+    
+    let geohash: string;
 
     try {
       // Add point marker
@@ -222,8 +228,11 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
       console.log('Marker added at:', lng, lat);
 
       // Calculate geohash
-      const geohash = ngeohash.encode(lat, lng, 7);
+      geohash = ngeohash.encode(lat, lng, 7);
       handlers.addMarker({ lng: lng.toFixed(4), lat: lat.toFixed(4), geohash });
+
+      // Store marker reference
+      markerRefs.current.push({ geohash, marker });
     } catch (err) {
       console.error('Failed to add marker:', err);
       setError('Failed to add marker');
@@ -234,14 +243,14 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     // Calculate bounding box
     let bbox: number[];
     try {
-      bbox = ngeohash.decode_bbox(ngeohash.encode(lat, lng, 7));
+      bbox = ngeohash.decode_bbox(geohash);
     } catch (err) {
       console.error('Failed to calculate bbox:', err);
       setError('Failed to calculate bounding box');
       isAddingFeatures.current = false;
       return;
     }
-    const lastChar = ngeohash.encode(lat, lng, 7).slice(-1);
+    const lastChar = geohash.slice(-1);
     const [minLat, minLng, maxLat, maxLng] = bbox;
 
     console.log('Bounding box coordinates:', { minLat, minLng, maxLat, maxLng });
@@ -362,37 +371,33 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
     // Animation
     const animationDuration = 1000;
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     const animateFade = (currentTime: number) => {
-      if (!map.current) {
-        console.warn('Map instance missing, stopping animation');
+      if (!map.current || !map.current.getLayer('geohash-bbox')) {
+        console.warn('Map or geohash-bbox layer missing, stopping animation');
         isAddingFeatures.current = false;
         return;
       }
 
-      const elapsed = currentTime - startTime;
+      const elapsed = Math.max(0, currentTime - startTime);
       const progress = Math.max(0, Math.min(elapsed / animationDuration, 1));
 
-      console.log('Animation progress:', progress, 'elapsed:', elapsed, 'startTime:', startTime);
+      console.log('Animation progress:', { progress, elapsed, currentTime, startTime });
 
-      if (map.current.getLayer('geohash-bbox')) {
-        try {
-          map.current.setPaintProperty('geohash-bbox', 'line-opacity', progress);
-          console.log('Set line-opacity to:', progress);
-        } catch (err) {
-          console.error('Failed to set line-opacity:', err);
-        }
-      } else {
-        console.warn('geohash-bbox layer not found during animation');
-        console.log('Current map layers:', map.current.getStyle().layers.map((l) => l.id));
+      try {
+        map.current.setPaintProperty('geohash-bbox', 'line-opacity', progress);
+        console.log('Set line-opacity to:', progress);
+      } catch (err) {
+        console.error('Failed to set line-opacity:', err);
+        setError(`Failed to set line-opacity: ${String(err)}`);
       }
 
       if (textElement) {
         textElement.style.opacity = `${progress}`;
       }
 
-      if (progress < 1) {
+      if (progress < 1 && animationRef.current) {
         animationRef.current = requestAnimationFrame(animateFade);
       } else {
         console.log('Animation completed');
@@ -403,8 +408,49 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
     }
-    startTime = performance.now();
     animationRef.current = requestAnimationFrame(animateFade);
+
+    // Reset isAddingFeatures after a short delay
+    setTimeout(() => {
+      isAddingFeatures.current = false;
+    }, 100);
+  };
+
+  const removeMarker = (geohash: string) => {
+    if (!map.current) {
+      console.warn('Map not initialized, cannot remove marker');
+      return;
+    }
+
+    try {
+      // Remove marker from map and refs
+      const markerData = markerRefs.current.find((m) => m.geohash === geohash);
+      if (markerData) {
+        markerData.marker.remove();
+        markerRefs.current = markerRefs.current.filter((m) => m.geohash !== geohash);
+        console.log('Removed marker for geohash:', geohash);
+      }
+
+      // Clear bounding box and rune if no markers remain
+      if (markerRefs.current.length === 0) {
+        if (map.current.getLayer('geohash-bbox')) {
+          map.current.removeLayer('geohash-bbox');
+          console.log('Removed geohash-bbox layer');
+        }
+        if (map.current.getSource('geohash-bbox')) {
+          map.current.removeSource('geohash-bbox');
+          console.log('Removed geohash-bbox source');
+        }
+        if (textMarkerRef.current) {
+          textMarkerRef.current.remove();
+          textMarkerRef.current = null;
+          console.log('Removed text marker');
+        }
+      }
+    } catch (err) {
+      console.error('Failed to remove marker:', err);
+      setError(`Failed to remove marker: ${String(err)}`);
+    }
   };
 
   const handleMapClick = (e: maplibregl.MapMouseEvent) => {
@@ -421,6 +467,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   useImperativeHandle(ref, () => ({
     getMap: () => map.current,
     addMapFeatures,
+    removeMarker,
   }), [map.current]);
 
   return (
