@@ -214,12 +214,12 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     try {
       // Calculate geohash first to check similarity
       geohash = ngeohash.encode(lat, lng, 7);
-      const lastFourChars = geohash.slice(-4);
+      const firstFourChars = geohash.slice(0, 4);
       
-      // Check if any existing marker has similar last four characters
+      // Check if any existing marker has matching first four characters
       const isTooClose = markerRefs.current.some(({ geohash: existingGeohash }) => {
-        const existingLastFour = existingGeohash.slice(-4);
-        return existingLastFour.split('').some((char, index) => char === lastFourChars[index]);
+        const existingFirstFour = existingGeohash.slice(0, 4);
+        return existingFirstFour === firstFourChars;
       });
 
       if (isTooClose) {
