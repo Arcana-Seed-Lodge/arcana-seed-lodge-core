@@ -26,8 +26,6 @@ export default function MapPage() {
   useEffect(() => {
     if (markers.length > 6) {
       setSnackbarOpen(true);
-    } else {
-      setSnackbarOpen(false);
     }
   }, [markers.length]);
 
@@ -45,10 +43,8 @@ export default function MapPage() {
       if (markers.length >= 6) {
         setSnackbarOpen(true);
         return;
-      } else{
-        setMarkers((prev) => [...prev, marker]);
-        // mapRef.current?.addMapFeatures(Number(marker.lng), Number(marker.lat));
       }
+      setMarkers((prev) => [...prev, marker]);
     },
   };
 
@@ -191,6 +187,7 @@ export default function MapPage() {
             markers={markers}
             handlers={handlers}
             ref={mapRef}
+            onMaxMarkersReached={() => setSnackbarOpen(true)}
           />
         </div>
         <div
@@ -313,7 +310,7 @@ export default function MapPage() {
             },
           }}
         >
-          Maximum of 6 markers allowed. Please remove some markers.
+          You cannot have more than 6 hashes. Please remove some hashes before adding more.
         </Alert>
       </Snackbar>
     </div>

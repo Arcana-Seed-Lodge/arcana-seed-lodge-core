@@ -28,9 +28,10 @@ interface MapComponentProps {
   handlers: {
     addMarker: (marker: GeohashMarker) => void;
   };
+  onMaxMarkersReached?: () => void;
 }
 
-const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, handlers }, ref) => {
+const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, handlers, onMaxMarkersReached }, ref) => {
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
   const darkMatterStyleUrl = `https://api.maptiler.com/maps/darkmatter/style.json?key=${mapTilerKey}`;
   const fallbackStyle = 'https://demotiles.maplibre.org/style.json';
@@ -196,6 +197,12 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
     if (isAddingFeatures.current) {
       console.warn('addMapFeatures already in progress, skipping');
+      return;
+    }
+
+    if (markerRefs.current.length >= 6) {
+      console.warn('Maximum number of markers reached');
+      onMaxMarkersReached?.();
       return;
     }
 
