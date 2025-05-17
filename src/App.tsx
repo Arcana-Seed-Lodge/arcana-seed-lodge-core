@@ -4,7 +4,7 @@ import MapPage from './MapPage';
 
 export default function App() {
   return (
-    <div>
+    <div className="app-container">
       {/* <BitcoinWallet /> */}
       <MapPage />
     </div>

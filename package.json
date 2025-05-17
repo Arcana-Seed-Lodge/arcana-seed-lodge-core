@@ -10,7 +10,9 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@mui/material": "^7.1.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/material": "^5.15.11",
     "@tauri-apps/api": "^1",
     "@types/ngeohash": "^0.6.8",
     "maplibre-gl": "^5.5.0",

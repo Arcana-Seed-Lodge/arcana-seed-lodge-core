@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, MutableRefObject } from 'react';
 import MapComponent, { MapComponentRef } from './MapComponent';
-import { TextField, Autocomplete, debounce } from '@mui/material';
+import { TextField, Autocomplete } from '@mui/material';
+import { debounce } from '@mui/material/utils';
 import maplibregl, { Map } from 'maplibre-gl';
 
 export interface GeohashMarker {
