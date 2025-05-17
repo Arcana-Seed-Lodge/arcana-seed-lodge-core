@@ -27,6 +27,7 @@ interface MapComponentProps {
   markers: GeohashMarker[];
   handlers: {
     addMarker: (marker: GeohashMarker) => void;
+    onLocationTooClose: () => void;
   };
   onMaxMarkersReached?: () => void;
 }
@@ -211,6 +212,22 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     let geohash: string;
 
     try {
+      // Calculate geohash first to check similarity
+      geohash = ngeohash.encode(lat, lng, 7);
+      const lastFourChars = geohash.slice(-4);
+      
+      // Check if any existing marker has similar last four characters
+      const isTooClose = markerRefs.current.some(({ geohash: existingGeohash }) => {
+        const existingLastFour = existingGeohash.slice(-4);
+        return existingLastFour.split('').some((char, index) => char === lastFourChars[index]);
+      });
+
+      if (isTooClose) {
+        handlers.onLocationTooClose();
+        isAddingFeatures.current = false;
+        return;
+      }
+
       // Add point marker
       const markerElement = document.createElement('div');
       markerElement.style.backgroundColor = '#ff0000';
@@ -224,8 +241,6 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
         .setLngLat([lng, lat])
         .addTo(map.current);
 
-      // Calculate geohash
-      geohash = ngeohash.encode(lat, lng, 7);
       handlers.addMarker({ lng: lng.toFixed(4), lat: lat.toFixed(4), geohash });
 
       // Store marker reference

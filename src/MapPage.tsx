@@ -19,12 +19,14 @@ export default function MapPage() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
   const mapRef = useRef<MapComponentRef>(null) as MutableRefObject<MapComponentRef | null>;
 
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
 
   useEffect(() => {
     if (markers.length > 6) {
+      setAlertMessage('You cannot have more than 6 hashes.');
       setSnackbarOpen(true);
     }
   }, [markers.length]);
@@ -51,11 +53,16 @@ export default function MapPage() {
   const handlers = {
     addMarker: (marker: GeohashMarker) => {
       if (markers.length >= 6) {
+        setAlertMessage('You cannot have more than 6 hashes.');
         setSnackbarOpen(true);
         return;
       }
       setMarkers((prev) => [...prev, marker]);
     },
+    onLocationTooClose: () => {
+      setAlertMessage('The location you chose was too close to one of your previous locations. Please select a different location. All locations must be at least 100 kM apart for sufficient entropy.');
+      setSnackbarOpen(true);
+    }
   };
 
   const handleSnackbarClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
@@ -197,7 +204,10 @@ export default function MapPage() {
             markers={markers}
             handlers={handlers}
             ref={mapRef}
-            onMaxMarkersReached={() => setSnackbarOpen(true)}
+            onMaxMarkersReached={() => {
+              setAlertMessage('You cannot have more than 6 hashes.');
+              setSnackbarOpen(true);
+            }}
           />
         </div>
         <div
@@ -340,7 +350,7 @@ export default function MapPage() {
             },
           }}
         >
-          You cannot have more than 6 hashes.
+          {alertMessage}
         </Alert>
       </Snackbar>
     </div>
