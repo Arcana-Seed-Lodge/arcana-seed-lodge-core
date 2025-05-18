@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import QRCodeModal, { PresentationContext } from "./QRCodeModal";
 import SendConfirmModal from "./SendConfirmModal";
+import DisclaimerModal from "./DisclaimerModal";
 import { BitcoinWalletService } from "../services/BitcoinWalletService";
 
 // Add prop type for onBack
@@ -13,6 +14,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [showQRModal, setShowQRModal] = useState(false);
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showDisclaimerModal, setShowDisclaimerModal] = useState(true);
   const [currentReceiveAddress, setCurrentReceiveAddress] = useState('');
   const [signedTransaction, setSignedTransaction] = useState<string | null>(null);
   const [walletService] = useState(new BitcoinWalletService());
@@ -136,6 +138,10 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
     console.log("Transaction signed:", signedPsbt);
     setSignedTransaction(signedPsbt);
     // Note: In a real implementation, we might broadcast the transaction here
+  };
+
+  const handleCloseDisclaimer = () => {
+    setShowDisclaimerModal(false);
   };
 
   if (isLoading) {
@@ -366,6 +372,13 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
         <SendConfirmModal 
           onClose={handleCloseSend} 
           onSignComplete={handleSignComplete}
+        />
+      )}
+
+      {/* Disclaimer Modal */}
+      {showDisclaimerModal && (
+        <DisclaimerModal 
+          onClose={handleCloseDisclaimer} 
         />
       )}
     </div>
