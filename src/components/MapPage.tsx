@@ -171,7 +171,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
       style={{
         minHeight: '100vh',
         background: '#181406',
-        color: '#FFA500',
+        color: '#F98029',
         fontFamily: "'Cinzel', serif",
         display: 'flex',
         flexDirection: 'column',
@@ -193,7 +193,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
             left: 24,
             background: 'none',
             border: 'none',
-            color: '#FFA500',
+            color: '#F98029',
             cursor: 'pointer',
             zIndex: 2,
             padding: 0,
@@ -201,7 +201,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
             alignItems: 'center',
           }}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFA500" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F98029" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
@@ -227,14 +227,14 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
             paper: {
               sx: {
                 background: '#1a1200',
-                color: '#FFA500',
+                color: '#F98029',
                 '& .MuiAutocomplete-option': {
-                  color: '#FFA500',
+                  color: '#F98029',
                   '&:hover': {
-                    background: '#FFA50033',
+                    background: '#F9802933',
                   },
                   '&[aria-selected="true"]': {
-                    background: '#FFA50022',
+                    background: '#F9802922',
                   },
                 },
               },
@@ -245,18 +245,18 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
               {...params}
               label="Search Location"
               variant="outlined"
-              style={{ background: '#1a1200', color: '#FFA500' }}
+              style={{ background: '#1a1200', color: '#F98029' }}
               InputLabelProps={{
-                style: { color: '#FFA500' },
+                style: { color: '#F98029' },
               }}
               InputProps={{
                 ...params.InputProps,
-                style: { color: '#FFA500' },
+                style: { color: '#F98029' },
               }}
               sx={{
                 '& .MuiOutlinedInput-root': {
                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: '#FFA500',
+                    borderColor: '#F98029',
                   },
                 },
               }}
@@ -280,7 +280,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
             background: '#1a1200',
             borderRadius: 16,
             padding: 16,
-            boxShadow: '0 0 12px #FFA50033',
+            boxShadow: '0 0 12px #F9802933',
             minHeight: '600px',
           }}
         >
@@ -300,7 +300,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
             background: '#1a1200',
             borderRadius: 16,
             padding: 24,
-            boxShadow: '0 0 12px #FFA50033',
+            boxShadow: '0 0 12px #F9802933',
             minHeight: '600px',
             overflowY: 'auto',
           }}
@@ -311,7 +311,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
               marginBottom: 24,
               fontSize: 24,
               textAlign: 'center',
-              textShadow: '0 0 8px #FFA50055',
+              textShadow: '0 0 8px #F9802955',
             }}
           >
             Geohash Markers
@@ -333,10 +333,10 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
                 key={index}
                 style={{
                   background: '#181406',
-                  border: '1px solid #FFA50033',
+                  border: '1px solid #F9802933',
                   borderRadius: 8,
                   padding: 16,
-                  boxShadow: '0 0 8px #FFA50022',
+                  boxShadow: '0 0 8px #F9802922',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
@@ -347,14 +347,14 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
                     fontFamily: 'monospace',
                     fontSize: 18,
                     marginBottom: 8,
-                    color: '#FFA500',
-                    textShadow: '0 0 4px #FFA50055',
+                    color: '#F98029',
+                    textShadow: '0 0 4px #F9802955',
                   }}
                 >
                   {marker.geohash}
                 </div>
                 <IconButton onClick={(e) => removeGeohash(e, marker.geohash)}>
-                  <WhatshotIcon sx={{ color: '#FFA500' }} />
+                  <WhatshotIcon sx={{ color: '#F98029' }} />
                 </IconButton>
               </div>
             ))}
@@ -363,7 +363,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
               <div
                 style={{
                   textAlign: 'center',
-                  color: '#FFA50055',
+                  color: '#F9802955',
                   fontStyle: 'italic',
                 }}
               >
@@ -377,11 +377,11 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
                 fullWidth
                 onClick={clearAllHashes}
                 sx={{
-                  color: '#FFA500',
-                  borderColor: '#FFA50033',
+                  color: '#F98029',
+                  borderColor: '#F9802933',
                   '&:hover': {
-                    borderColor: '#FFA500',
-                    backgroundColor: '#FFA50011'
+                    borderColor: '#F98029',
+                    backgroundColor: '#F9802911'
                   }
                 }}
               >
@@ -393,11 +393,11 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
                   fullWidth
                   onClick={handleSkip}
                   sx={{
-                    color: '#FFA500',
-                    borderColor: '#FFA50033',
+                    color: '#F98029',
+                    borderColor: '#F9802933',
                     '&:hover': {
-                      borderColor: '#FFA500',
-                      backgroundColor: '#FFA50011'
+                      borderColor: '#F98029',
+                      backgroundColor: '#F9802911'
                     }
                   }}
                 >
@@ -410,16 +410,16 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
                 disabled={markers.length !== 6}
                 onClick={handleSubmit}
                 sx={{
-                  color: '#FFA500',
-                  borderColor: '#FFA50033',
+                  color: '#F98029',
+                  borderColor: '#F9802933',
                   '&:hover': {
-                    borderColor: '#FFA500',
-                    backgroundColor: '#FFA50011'
+                    borderColor: '#F98029',
+                    backgroundColor: '#F9802911'
                   },
                   '&.Mui-disabled': {
-                    color: '#FFA50055',
-                    borderColor: '#FFA50022',
-                    backgroundColor: '#FFA50008'
+                    color: '#F9802955',
+                    borderColor: '#F9802922',
+                    backgroundColor: '#F9802908'
                   }
                 }}
               >
@@ -440,15 +440,15 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
           severity="warning"
           sx={{
             background: '#1a1200',
-            color: '#FFA500',
+            color: '#F98029',
             fontFamily: "'Cinzel', serif",
-            boxShadow: '0 0 12px #FFA50033',
-            border: '1px solid #FFA50033',
+            boxShadow: '0 0 12px #F9802933',
+            border: '1px solid #F9802933',
             '& .MuiAlert-icon': {
-              color: '#FFA500',
+              color: '#F98029',
             },
             '& .mui-1vooibu-MuiSvgIcon-root': {
-              color: '#FFA500 !important',
+              color: '#F98029 !important',
             },
           }}
         >

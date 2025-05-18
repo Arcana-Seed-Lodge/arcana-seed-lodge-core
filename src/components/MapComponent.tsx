@@ -25,9 +25,6 @@ export const TEST_SYMBOLS = [
   '🪨', // Pillar Boaz
 ];
 
-// Define the orange color to match the rest of the application
-const ORANGE = "#F98029";
-
 // Add custom CSS for attribution control
 const addCustomAttributionStyles = () => {
   // Check if style already exists
@@ -51,7 +48,7 @@ const addCustomAttributionStyles = () => {
         opacity: 0.9;
       }
       .maplibregl-ctrl.maplibregl-ctrl-attrib a {
-        color: ${ORANGE} !important;
+        color: #F98029 !important;
         opacity: 0.75 !important;
         text-decoration: none !important;
       }
@@ -172,7 +169,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
             borderLayers.forEach((layer) => {
               if (map.current) {
-                map.current.setPaintProperty(layer, 'line-color', ORANGE);
+                map.current.setPaintProperty(layer, 'line-color', "#F98029");
                 map.current.setPaintProperty(layer, 'line-width', [
                   'interpolate',
                   ['linear'],
@@ -304,11 +301,11 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
       // Add point marker
       const markerElement = document.createElement('div');
-      markerElement.style.backgroundColor = ORANGE;
+      markerElement.style.backgroundColor = "#F98029";
       markerElement.style.width = '12px';
       markerElement.style.height = '12px';
       markerElement.style.borderRadius = '50%';
-      markerElement.style.border = '2px solid #fff';
+      markerElement.style.border = '2px solid #1a1200';
       markerElement.style.zIndex = '2000';
 
       const marker = new maplibregl.Marker({ element: markerElement })
@@ -392,7 +389,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
           'line-cap': 'round',
         },
         paint: {
-          'line-color': ORANGE,
+          'line-color': "#F98029",
           'line-width': 5,
           'line-opacity': 0,
         },
@@ -408,11 +405,11 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     let textElement: HTMLDivElement | null = null;
     try {
       textElement = document.createElement('div');
-      textElement.style.color = ORANGE;
+      textElement.style.color = "#F98029";
       textElement.style.fontFamily = 'monospace';
       textElement.style.fontSize = '20px';
       textElement.style.fontWeight = 'bold';
-      textElement.style.textShadow = `0 0 8px ${ORANGE}, 0 0 16px ${ORANGE}`;
+      textElement.style.textShadow = `0 0 8px #F98029, 0 0 16px #F98029`;
       textElement.style.opacity = '0';
       textElement.style.pointerEvents = 'none';
       textElement.style.zIndex = '2000';
@@ -526,7 +523,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   return (
     <div className="map-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
       <div ref={mapContainer} style={{ width: '50vw', height: '38vw', position: 'relative' }} />
-      {error && <div style={{ color: ORANGE, position: 'absolute', top: 10, left: 10 }}>{error}</div>}
+      {error && <div style={{ color: "#F98029", position: 'absolute', top: 10, left: 10 }}>{error}</div>}
     </div>
   );
 });
