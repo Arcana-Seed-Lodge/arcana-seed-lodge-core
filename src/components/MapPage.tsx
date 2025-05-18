@@ -3,6 +3,8 @@ import MapComponent, { MapComponentRef } from './MapComponent';
 import { TextField, Autocomplete, IconButton, Snackbar, Alert, Button } from '@mui/material';
 import { debounce } from '@mui/material/utils';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
+import { StorageService } from '../services/StorageService';
+import { SYMBOLS } from '../symbols';
 
 export interface GeohashMarker {
   lng: string;
@@ -28,6 +30,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
   const mapRef = useRef<MapComponentRef>(null) as MutableRefObject<MapComponentRef | null>;
+  const storageService = useRef(StorageService.getInstance());
 
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
 
@@ -115,9 +118,27 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
     }
   };
 
-  const handleSubmit = () => {
-    if (onContinue) {
-      onContinue();
+  const handleSubmit = async () => {
+    try {
+      // Extract just the geohash strings
+      const geohashes = markers.map(marker => marker.geohash);
+      
+      // Store the geohashes
+      await storageService.current.saveGeohashes(geohashes);
+      
+      // Store default symbols for now - in a real app you might let users select these
+      await storageService.current.saveSymbols([
+        SYMBOLS[1], SYMBOLS[2], SYMBOLS[5], SYMBOLS[6]
+      ]);
+      
+      // Now continue to the next screen
+      if (onContinue) {
+        onContinue();
+      }
+    } catch (error) {
+      console.error('Error saving geohashes:', error);
+      setAlertMessage('Failed to save your selected locations. Please try again.');
+      setSnackbarOpen(true);
     }
   };
 

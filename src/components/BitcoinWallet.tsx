@@ -1,31 +1,7 @@
 import React, { useState, useEffect } from "react";
 import QRCodeModal, { PresentationContext } from "./QRCodeModal";
 import SendConfirmModal from "./SendConfirmModal";
-import { SYMBOLS } from "../symbols";
-import { SeedSigner } from "../lib/signer";
-import { generate_map_seed } from "../lib/hash";
-// import { GenerateSeedLogic } from "../GenerateSeedLogic";
-
-// const seedLogic = new GenerateSeedLogic();
-const testGeohashes = [
-  'dp3wqdh', //B15 - End of Navy Pier
-  '9v6e6nk', //B16 - Circuit of the Americas Grand Plaza Entrance
-  '9q8yyk8', //B17 - SVN West in SF
-  'dhx48x9', //B21/22/23 Miami Beach Convention Center
-  'dn6m9q3', //B24 - Nashville Music City Center	 
-  '9qqj7pz' //B25 - The Venetian Vegas
-];
-
-const testSymbols = [
-    SYMBOLS[1],  // 👁️ All-Seeing Eye
-    SYMBOLS[2],  // 🐝 Beehive
-    SYMBOLS[5],  // 🗿 Pillar Jachin
-    SYMBOLS[6],  // 🪨 Pillar Boaz
-  ];
-
-const seed = generate_map_seed(testGeohashes, testSymbols);
-const signer = new SeedSigner(seed, { network: 'regtest' });
-const xpub = signer.account_xpub; //seedLogic.getSeedHex();
+import { BitcoinWalletService } from "../services/BitcoinWalletService";
 
 // Add prop type for onBack
 interface BitcoinWalletProps {
@@ -39,25 +15,42 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [showSendModal, setShowSendModal] = useState(false);
   const [currentReceiveAddress, setCurrentReceiveAddress] = useState('');
   const [signedTransaction, setSignedTransaction] = useState<string | null>(null);
+  const [walletService] = useState(new BitcoinWalletService());
+  const [isLoading, setIsLoading] = useState(true);
   
   // Reference to signer to access in component functions
-  const signerRef = React.useRef(signer);
+  const signerRef = React.useRef<any>(null);
 
-  // Log initial state
+  // Initialize the wallet service
   useEffect(() => {
-    console.log("Component mounted");
-    try {
-      // Initialize the first address
-      getCurrentReceiveAddress();
-    } catch (error) {
-      console.error("Error in component mount:", error);
+    async function initializeWallet() {
+      try {
+        setIsLoading(true);
+        await walletService.initialize();
+        if (walletService.signerInstance) {
+          signerRef.current = walletService.signerInstance;
+          // Initialize the first address
+          getCurrentReceiveAddress();
+        }
+      } catch (error) {
+        console.error("Error initializing wallet:", error);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    
+    initializeWallet();
   }, []);
 
   // Get the current receive address and return its string representation
   const getCurrentReceiveAddress = () => {
     try {
       console.log("Getting current receive address");
+      if (!signerRef.current) {
+        console.error("Signer not initialized");
+        return "Wallet not initialized";
+      }
+      
       const address = signerRef.current.spend_address;
       console.log("Spend address object:", address);
       
@@ -81,7 +74,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(xpub);
+    navigator.clipboard.writeText(walletService.xpub);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
@@ -116,13 +109,15 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
     try {
       // Simply increment the signer's internal index 
       // (the set_index method does this if no index is provided)
-      signerRef.current.set_index();
-      console.log("New index:", signerRef.current.wallet_index);
-      
-      // Get the new address based on the incremented index
-      const address = getCurrentReceiveAddress();
-      console.log("New address:", address);
-      setCurrentReceiveAddress(address);
+      if (signerRef.current) {
+        signerRef.current.set_index();
+        console.log("New index:", signerRef.current.wallet_index);
+        
+        // Get the new address based on the incremented index
+        const address = getCurrentReceiveAddress();
+        console.log("New address:", address);
+        setCurrentReceiveAddress(address);
+      }
     } catch (error) {
       console.error("Error in handleNextAddress:", error);
     }
@@ -142,6 +137,22 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
     setSignedTransaction(signedPsbt);
     // Note: In a real implementation, we might broadcast the transaction here
   };
+
+  if (isLoading) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        background: "#181406",
+        color: "#F98029",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        fontFamily: "'Cinzel', serif",
+      }}>
+        Loading wallet...
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -216,9 +227,9 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
             flex: 1,
             color: "#F98029",
           }}
-          title={xpub}
+          title={walletService.xpub}
         >
-          {xpub}
+          {walletService.xpub}
         </div>
         <button
           onClick={handleCopy}
@@ -337,7 +348,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
       </div>
       
       {/* QR Code Modal for xpub */}
-      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={xpub} />}
+      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={walletService.xpub} />}
       
       {/* QR Code Modal for receive address */}
       {showReceiveModal && (
@@ -345,7 +356,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
           onClose={handleCloseReceive} 
           content={currentReceiveAddress}
           presentationContext={PresentationContext.RECEIVE_ADDRESS_RENDERING}
-          addressIndex={signerRef.current.wallet_index}
+          addressIndex={signerRef.current?.wallet_index}
           onNextAddress={handleNextAddress}
         />
       )}

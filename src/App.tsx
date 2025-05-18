@@ -6,6 +6,7 @@ import BitcoinWallet from "./components/BitcoinWallet";
 import IntroScreen from "./components/IntroScreen";
 import StoryScreen from "./components/StoryScreen";
 import MapPage from "./components/MapPage";
+import { StorageService } from "./services/StorageService";
 
 // Define enums for tracking application state
 enum Screen {
@@ -34,14 +35,30 @@ function App() {
   // Track how user arrived at the map
   const [mapEntryPoint, setMapEntryPoint] = useState<MapEntryPoint>(MapEntryPoint.FROM_INTRO);
   
-  // Check if user has a bitcoin PK stored (placeholder for now - always false)
-  const hasBitcoinPK = false;
+  // Check if user has a bitcoin PK stored
+  const [hasBitcoinPK, setHasBitcoinPK] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
-  // Set initial screen based on whether user has a bitcoin PK
+  // Check if user has stored wallet data
   useEffect(() => {
-    if (hasBitcoinPK) {
-      setScreen(Screen.WALLET);
+    async function checkStoredWallet() {
+      try {
+        const storageService = StorageService.getInstance();
+        const hasWallet = await storageService.hasStoredWallet();
+        setHasBitcoinPK(hasWallet);
+        
+        if (hasWallet) {
+          setScreen(Screen.WALLET);
+        }
+        
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error checking stored wallet:", error);
+        setIsLoading(false);
+      }
     }
+    
+    checkStoredWallet();
   }, []);
 
   // Function to handle story completion
@@ -64,6 +81,23 @@ function App() {
       setScreen(Screen.STORY);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div style={{
+        background: "#181406",
+        minHeight: "100vh",
+        width: "100vw",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        color: "#F98029",
+        fontFamily: "'Cinzel', serif",
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <div style={{ background: "#181406", minHeight: "100vh", width: "100vw" }}>
