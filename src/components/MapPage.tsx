@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef, MutableRefObject, useEffect } from 'react';
 import MapComponent, { MapComponentRef } from './MapComponent';
-import { TextField, Autocomplete, debounce, IconButton, Snackbar, Alert, Button } from '@mui/material';
+import { TextField, Autocomplete, IconButton, Snackbar, Alert, Button } from '@mui/material';
+import { debounce } from '@mui/material/utils';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 
 export interface GeohashMarker {
