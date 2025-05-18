@@ -9,7 +9,7 @@ import MapPage from "./components/MapPage";
 
 function App() {
   // Track which screen to show
-  const [screen, setScreen] = useState("intro"); // 'intro', 'story', 'wallet', or 'map'
+  const [screen, setScreen] = useState("map"); // 'intro', 'story', 'wallet', or 'map'
 
   return (
     <div style={{ background: "#181406", minHeight: "100vh", width: "100vw" }}>
