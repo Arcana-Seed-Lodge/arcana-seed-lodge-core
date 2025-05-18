@@ -183,7 +183,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
       )}
       {/* Logo instead of title */}
       <img
-        src="/arcana-logo.jpeg"
+        src="/arcana-logo-no-bg2.png"
         alt="Arcana Seed Lodge Logo"
         style={{
           width: "auto",
@@ -191,7 +191,6 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
           height: "auto",
           maxHeight: 270,
           marginBottom: 12,
-          borderRadius: 12,
           boxShadow: "0 0 24px #F9802933",
         }}
       />

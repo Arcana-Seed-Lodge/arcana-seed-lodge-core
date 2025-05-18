@@ -6,11 +6,19 @@ const TEXT_FADE_DURATION = 800; // ms
 const TEXT_DELAY = 400; // ms delay after image starts fading
 const TEXT_STAGGER_DELAY = 200; // ms between each line of text
 
+// Define the StoryPart enum to match App.tsx
+enum StoryPart {
+  PART1 = "part1",
+  PART2 = "part2"
+}
+
 type StoryScreenProps = {
   onBack: () => void;
+  onComplete?: () => void;
+  storyPart?: StoryPart;
 };
 
-const slides = [
+const part1Slides = [
   {
     image: "/storyboard-images/storyboard-part1-image.png",
     text: [
@@ -72,7 +80,21 @@ const slides = [
   },
 ];
 
-export default function StoryScreen({ onBack }: StoryScreenProps) {
+// Define placeholder slides for Part 2
+const part2Slides = [
+  {
+    image: "/arcana-logo.jpeg", // Using the app logo as a placeholder image
+    text: [
+      "Placeholder for Part 2",
+      "This will be replaced with actual content in the future."
+    ],
+  },
+];
+
+export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.PART1 }: StoryScreenProps) {
+  // Use appropriate slides based on storyPart
+  const slides = storyPart === StoryPart.PART1 ? part1Slides : part2Slides;
+  
   const [slide, setSlide] = useState(0); // logical slide
   const [displayedSlide, setDisplayedSlide] = useState(0); // image/text being shown
   const [imgVisible, setImgVisible] = useState(false);
@@ -156,6 +178,9 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
       setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
       setSlide((s) => s + 1);
       goToSlide(slide + 1);
+    } else if (onComplete) {
+      // If at the last slide and onComplete is provided, call it
+      onComplete();
     }
   };
 
@@ -174,8 +199,33 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
         paddingRight: "20vw",
         userSelect: "none",
         pointerEvents: "none",
+        position: "relative", // Added for back arrow positioning
       }}
     >
+      {/* Back Arrow */}
+      <button
+        onClick={handleBack}
+        aria-label="Back"
+        style={{
+          position: "absolute",
+          top: 24,
+          left: 24,
+          background: "none",
+          border: "none",
+          color: ORANGE,
+          cursor: "pointer",
+          zIndex: 2,
+          padding: 0,
+          display: "flex",
+          alignItems: "center",
+          pointerEvents: "auto",
+        }}
+      >
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={ORANGE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      
       <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
       <img
         key={displayedSlide}
@@ -264,9 +314,13 @@ export default function StoryScreen({ onBack }: StoryScreenProps) {
             opacity: isAnimating ? 0.5 : 1,
           }}
           onClick={handleNext}
-          disabled={slide === slides.length - 1 || isAnimating}
+          disabled={(slide === slides.length - 1 && !onComplete) || isAnimating}
         >
-          Next
+          {slide === slides.length - 1 && onComplete 
+            ? storyPart === StoryPart.PART1 
+              ? "Begin Ritual" 
+              : "Complete" 
+            : "Next"}
         </button>
       </div>
     </div>

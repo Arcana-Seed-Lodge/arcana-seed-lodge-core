@@ -15,7 +15,13 @@ interface SearchResult {
   center: [number, number];
 }
 
-export default function MapPage() {
+interface MapPageProps {
+  onContinue?: () => void;
+  onSkip?: () => void;
+  onBack?: () => void;
+}
+
+export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
   const [markers, setMarkers] = useState<GeohashMarker[]>([]);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [inputValue, setInputValue] = useState('');
@@ -109,6 +115,18 @@ export default function MapPage() {
     }
   };
 
+  const handleSubmit = () => {
+    if (onContinue) {
+      onContinue();
+    }
+  };
+
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    }
+  };
+
   return (
     <div
       style={{
@@ -122,8 +140,34 @@ export default function MapPage() {
         justifyContent: 'flex-start',
         paddingTop: 40,
         letterSpacing: 1.5,
+        position: 'relative', // For positioning the back button
       }}
     >
+      {/* Back Arrow */}
+      {onBack && (
+        <button
+          onClick={handleBack}
+          aria-label="Back"
+          style={{
+            position: 'absolute',
+            top: 24,
+            left: 24,
+            background: 'none',
+            border: 'none',
+            color: '#FFA500',
+            cursor: 'pointer',
+            zIndex: 2,
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FFA500" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+      )}
+      
       <div
         style={{
           width: '90%',
@@ -308,6 +352,7 @@ export default function MapPage() {
                 variant="outlined"
                 fullWidth
                 disabled={markers.length !== 6}
+                onClick={handleSubmit}
                 sx={{
                   color: '#FFA500',
                   borderColor: '#FFA50033',
@@ -322,7 +367,7 @@ export default function MapPage() {
                   }
                 }}
               >
-                Submit
+                Continue
               </Button>
             </div>
           </div>

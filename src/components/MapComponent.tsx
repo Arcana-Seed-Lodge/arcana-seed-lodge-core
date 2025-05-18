@@ -5,6 +5,54 @@ import { MapOptions } from 'react-map-gl/mapbox';
 import * as ngeohash from 'ngeohash';
 import { GeohashMarker } from './MapPage';
 
+// Define the orange color to match the rest of the application
+const ORANGE = "#F98029";
+
+// Add custom CSS for attribution control
+const addCustomAttributionStyles = () => {
+  // Check if style already exists
+  if (!document.getElementById('custom-attribution-style')) {
+    const style = document.createElement('style');
+    style.id = 'custom-attribution-style';
+    style.innerHTML = `
+      .maplibregl-ctrl.maplibregl-ctrl-attrib {
+        background-color: rgba(24, 20, 6, 0.8) !important;
+        padding: 1px 4px !important;
+        border-radius: 4px !important;
+        font-size: 8px !important;
+        margin: 0 !important;
+        bottom: 3px !important;
+        right: 3px !important;
+        max-width: 200px !important;
+        transition: opacity 0.3s;
+        opacity: 0.5;
+      }
+      .maplibregl-ctrl.maplibregl-ctrl-attrib:hover {
+        opacity: 0.9;
+      }
+      .maplibregl-ctrl.maplibregl-ctrl-attrib a {
+        color: ${ORANGE} !important;
+        opacity: 0.75 !important;
+        text-decoration: none !important;
+      }
+      .maplibregl-ctrl.maplibregl-ctrl-attrib a:hover {
+        opacity: 1 !important;
+        text-decoration: underline !important;
+      }
+      .maplibregl-ctrl-attrib-button {
+        background-color: rgba(24, 20, 6, 0.8) !important;
+        top: auto !important;
+        bottom: 3px !important;
+        right: 3px !important;
+      }
+      .maplibregl-ctrl-attrib.maplibregl-compact .maplibregl-ctrl-attrib-inner {
+        max-width: 180px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+};
+
 // Define types
 interface MapState {
   lng: number;
@@ -56,6 +104,9 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   useEffect(() => {
     if (map.current || !mapContainer.current) return;
 
+    // Add custom attribution styles
+    addCustomAttributionStyles();
+
     const initializeMap = (style: string) => {
       try {
         map.current = new maplibregl.Map({
@@ -71,14 +122,17 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
           doubleClickZoom: true,
           touchZoomRotate: true,
           keyboard: false,
-          attributionControl: false,
+          attributionControl: false, // Disable default attribution
           interactive: true,
         } as MapOptions);
 
+        // Add custom attribution control
         map.current.addControl(
           new AttributionControl({
-            customAttribution: [],
-          })
+            customAttribution: '© <a href="https://www.maptiler.com">MapTiler</a>',
+            compact: true
+          }),
+          'bottom-right'
         );
 
         map.current.on('load', () => {
@@ -98,7 +152,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
             borderLayers.forEach((layer) => {
               if (map.current) {
-                map.current.setPaintProperty(layer, 'line-color', '#F98029');
+                map.current.setPaintProperty(layer, 'line-color', ORANGE);
                 map.current.setPaintProperty(layer, 'line-width', [
                   'interpolate',
                   ['linear'],
@@ -230,7 +284,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
 
       // Add point marker
       const markerElement = document.createElement('div');
-      markerElement.style.backgroundColor = '#ff0000';
+      markerElement.style.backgroundColor = ORANGE;
       markerElement.style.width = '12px';
       markerElement.style.height = '12px';
       markerElement.style.borderRadius = '50%';
@@ -318,7 +372,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
           'line-cap': 'round',
         },
         paint: {
-          'line-color': '#ff0000',
+          'line-color': ORANGE,
           'line-width': 5,
           'line-opacity': 0,
         },
@@ -334,11 +388,11 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
     let textElement: HTMLDivElement | null = null;
     try {
       textElement = document.createElement('div');
-      textElement.style.color = '#ff0000';
+      textElement.style.color = ORANGE;
       textElement.style.fontFamily = 'monospace';
       textElement.style.fontSize = '20px';
       textElement.style.fontWeight = 'bold';
-      textElement.style.textShadow = '0 0 8px #ff0000, 0 0 16px #ff0000';
+      textElement.style.textShadow = `0 0 8px ${ORANGE}, 0 0 16px ${ORANGE}`;
       textElement.style.opacity = '0';
       textElement.style.pointerEvents = 'none';
       textElement.style.zIndex = '2000';
@@ -452,7 +506,7 @@ const MapComponent = forwardRef<MapComponentRef, MapComponentProps>(({ markers, 
   return (
     <div className="map-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
       <div ref={mapContainer} style={{ width: '50vw', height: '38vw', position: 'relative' }} />
-      {error && <div style={{ color: 'red', position: 'absolute', top: 10, left: 10 }}>{error}</div>}
+      {error && <div style={{ color: ORANGE, position: 'absolute', top: 10, left: 10 }}>{error}</div>}
     </div>
   );
 });
