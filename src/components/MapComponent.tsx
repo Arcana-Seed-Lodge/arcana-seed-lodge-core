@@ -5,6 +5,26 @@ import { MapOptions } from 'react-map-gl/mapbox';
 import * as ngeohash from 'ngeohash';
 import { GeohashMarker } from './MapPage';
 
+// DEBUG flag - set to true to show SKIP button
+export const DEBUG = true;
+
+// Test values for DEBUG mode
+export const TEST_GEOHASHES = [
+  'dp3wqdh', //B15 - End of Navy Pier
+  '9v6e6nk', //B16 - Circuit of the Americas Grand Plaza Entrance
+  '9q8yyk8', //B17 - SVN West in SF
+  'dhx48x9', //B21/22/23 Miami Beach Convention Center
+  'dn6m9q3', //B24 - Nashville Music City Center	 
+  '9qqj7pz' //B25 - The Venetian Vegas
+];
+
+export const TEST_SYMBOLS = [
+  '👁️', // All-Seeing Eye
+  '🐝', // Beehive
+  '🗿', // Pillar Jachin
+  '🪨', // Pillar Boaz
+];
+
 // Define the orange color to match the rest of the application
 const ORANGE = "#F98029";
 

@@ -5,6 +5,7 @@ import { debounce } from '@mui/material/utils';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { StorageService } from '../services/StorageService';
 import { SYMBOLS } from '../symbols';
+import { DEBUG, TEST_GEOHASHES, TEST_SYMBOLS } from './MapComponent';
 
 export interface GeohashMarker {
   lng: string;
@@ -138,6 +139,23 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
     } catch (error) {
       console.error('Error saving geohashes:', error);
       setAlertMessage('Failed to save your selected locations. Please try again.');
+      setSnackbarOpen(true);
+    }
+  };
+
+  const handleSkip = async () => {
+    try {
+      // Save the test geohashes and symbols
+      await storageService.current.saveGeohashes(TEST_GEOHASHES);
+      await storageService.current.saveSymbols(TEST_SYMBOLS);
+      
+      // Continue to the next screen
+      if (onContinue) {
+        onContinue();
+      }
+    } catch (error) {
+      console.error('Error saving test values:', error);
+      setAlertMessage('Failed to save test values. Please try again.');
       setSnackbarOpen(true);
     }
   };
@@ -369,6 +387,23 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
               >
                 Clear All
               </Button>
+              {DEBUG && (
+                <Button 
+                  variant="outlined"
+                  fullWidth
+                  onClick={handleSkip}
+                  sx={{
+                    color: '#FFA500',
+                    borderColor: '#FFA50033',
+                    '&:hover': {
+                      borderColor: '#FFA500',
+                      backgroundColor: '#FFA50011'
+                    }
+                  }}
+                >
+                  SKIP
+                </Button>
+              )}
               <Button 
                 variant="outlined"
                 fullWidth
