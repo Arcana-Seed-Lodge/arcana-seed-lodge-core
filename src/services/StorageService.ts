@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/tauri';
+import { Store } from 'tauri-plugin-store-api';
 
 // Local storage fallback for when Tauri API isn't available
 class LocalStorageFallback {
@@ -50,9 +50,11 @@ interface StorageProvider {
 }
 
 export class StorageService {
-  private store: StorageProvider;
+  private store: StorageProvider = {} as StorageProvider;
   private static instance: StorageService;
   private isTauri: boolean;
+  private tauriStore: Store | null = null;
+  private readonly storePath = 'arcana-seed.dat';
 
   private constructor() {
     // Check if we're in a Tauri environment
@@ -62,48 +64,54 @@ export class StorageService {
                  window.__TAURI__ !== undefined;
     
     if (this.isTauri) {
-      this.store = {
-        async get(key: string): Promise<any> {
-          try {
-            // Use Tauri's invoke to get data
-            const result = await invoke('plugin:store|get', { 
-              key,
-              store: 'arcana-seed.dat'
-            });
-            return result;
-          } catch (e) {
-            console.error('Error getting data from Tauri store:', e);
-            return null;
+      try {
+        // Initialize the Tauri store
+        this.tauriStore = new Store(this.storePath);
+        
+        this.store = {
+          get: async (key: string): Promise<any> => {
+            try {
+              if (this.tauriStore) {
+                return await this.tauriStore.get(key);
+              }
+              return null;
+            } catch (e) {
+              console.error('Error getting data from Tauri store:', e);
+              return null;
+            }
+          },
+          set: async (key: string, value: any): Promise<void> => {
+            try {
+              if (this.tauriStore) {
+                await this.tauriStore.set(key, value);
+              }
+            } catch (e) {
+              console.error('Error setting data in Tauri store:', e);
+            }
+          },
+          save: async (): Promise<void> => {
+            try {
+              if (this.tauriStore) {
+                await this.tauriStore.save();
+              }
+            } catch (e) {
+              console.error('Error saving Tauri store:', e);
+            }
           }
-        },
-        async set(key: string, value: any): Promise<void> {
-          try {
-            // Use Tauri's invoke to set data
-            await invoke('plugin:store|set', {
-              key,
-              value,
-              store: 'arcana-seed.dat'
-            });
-          } catch (e) {
-            console.error('Error setting data in Tauri store:', e);
-          }
-        },
-        async save(): Promise<void> {
-          try {
-            // Use Tauri's invoke to save the store
-            await invoke('plugin:store|save', {
-              store: 'arcana-seed.dat'
-            });
-          } catch (e) {
-            console.error('Error saving Tauri store:', e);
-          }
-        }
-      };
+        };
+      } catch (e) {
+        console.error('Error initializing Tauri store, falling back to localStorage:', e);
+        this.fallbackToLocalStorage();
+      }
     } else {
-      // Fallback to localStorage
-      console.warn('Tauri API unavailable, falling back to localStorage');
-      this.store = new LocalStorageFallback('arcana-seed');
+      this.fallbackToLocalStorage();
     }
+  }
+
+  private fallbackToLocalStorage() {
+    // Fallback to localStorage
+    console.warn('Tauri API unavailable, falling back to localStorage');
+    this.store = new LocalStorageFallback('arcana-seed');
   }
 
   // Singleton pattern
@@ -117,14 +125,14 @@ export class StorageService {
   async saveGeohashes(geohashes: string[]): Promise<void> {
     await this.store.set('geohashes', geohashes);
     if (this.store.save) {
-      await this.store.save();
+      await this.store.save(); // Explicitly save after setting value
     }
   }
 
   async saveSymbols(symbols: any[]): Promise<void> {
     await this.store.set('symbols', symbols);
     if (this.store.save) {
-      await this.store.save();
+      await this.store.save(); // Explicitly save after setting value
     }
   }
 
