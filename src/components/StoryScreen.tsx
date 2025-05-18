@@ -161,15 +161,9 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
 
   const handleBack = () => {
     if (isAnimating) return;
-    if (slide === 0) {
-      setImgVisible(false);
-      setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
-      setTimeout(() => onBack(), 20); // instantly hide, then go back
-    } else {
-      setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
-      setSlide((s) => s - 1);
-      goToSlide(slide - 1);
-    }
+    
+    // Always call onBack to return to the intro screen
+    onBack();
   };
 
   const handleNext = () => {
@@ -293,7 +287,7 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
             transition: "background 0.2s, color 0.2s",
             opacity: isAnimating ? 0.5 : 1,
           }}
-          onClick={handleBack}
+          onClick={onBack}
           disabled={isAnimating}
         >
           Back

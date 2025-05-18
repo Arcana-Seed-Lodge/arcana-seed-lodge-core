@@ -82,6 +82,17 @@ function App() {
     }
   };
 
+  // Function to handle map completion
+  const handleMapComplete = () => {
+    // Skip story part 2 if user came directly from intro (skipped story)
+    if (mapEntryPoint === MapEntryPoint.FROM_INTRO) {
+      setScreen(Screen.WALLET);
+    } else {
+      setStoryPart(StoryPart.PART2);
+      setScreen(Screen.STORY);
+    }
+  };
+
   if (isLoading) {
     return (
       <div style={{
@@ -103,10 +114,7 @@ function App() {
     <div style={{ background: "#181406", minHeight: "100vh", width: "100vw" }}>
       {screen === Screen.MAP && (
         <MapPage 
-          onContinue={() => {
-            setStoryPart(StoryPart.PART2);
-            setScreen(Screen.STORY);
-          }} 
+          onContinue={handleMapComplete} 
           onBack={handleMapBack}
         />
       )}
@@ -124,13 +132,7 @@ function App() {
       )}
       {screen === Screen.STORY && (
         <StoryScreen 
-          onBack={() => {
-            if (storyPart === StoryPart.PART1) {
-              setScreen(Screen.INTRO);
-            } else {
-              setScreen(Screen.MAP);
-            }
-          }} 
+          onBack={() => setScreen(Screen.INTRO)} 
           onComplete={handleStoryComplete}
           storyPart={storyPart}
         />
