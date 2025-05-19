@@ -140,7 +140,6 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const handleSignComplete = (signedPsbt: string) => {
     console.log("Transaction signed:", signedPsbt);
     setSignedTransaction(signedPsbt);
-    // Note: In a real implementation, we might broadcast the transaction here
   };
 
   const handleCloseDisclaimer = () => {
@@ -397,6 +396,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
         <SendConfirmModal 
           onClose={handleCloseSend} 
           onSignComplete={handleSignComplete}
+          signer={signerRef.current}
         />
       )}
 

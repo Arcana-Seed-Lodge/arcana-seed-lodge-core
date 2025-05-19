@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { SeedSigner } from "../lib/signer";
 
 interface SendConfirmModalProps {
   onClose: () => void;
   onSignComplete?: (signedPsbt: string) => void;
+  signer: SeedSigner;
 }
 
 enum SendStep {
@@ -11,36 +13,51 @@ enum SendStep {
   TRANSACTION_SIGNED = 2
 }
 
-export default function SendConfirmModal({ onClose, onSignComplete }: SendConfirmModalProps) {
+export default function SendConfirmModal({ onClose, onSignComplete, signer }: SendConfirmModalProps) {
   const [currentStep, setCurrentStep] = useState<SendStep>(SendStep.PASTE_PSBT);
   const [psbtValue, setPsbtValue] = useState("");
   const [signedPsbt, setSignedPsbt] = useState("");
-  
-  // Placeholder transaction details (in a real implementation, these would be parsed from the PSBT)
-  const amountSats = "50000";
-  const sourceAddress = "bc1q...xyz";
-  const destinationAddress = "bc1q...abc";
-  const feeSats = "2500"; // Added fee amount
+  const [transactionDetails, setTransactionDetails] = useState<{
+    spend_address: string;
+    spend_amount: number;
+    recv_address: string;
+    recv_amount: number;
+    change_address: string;
+    change_amount: number;
+    tx_fee: number;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
   
   const handlePsbtChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPsbtValue(e.target.value);
+    setError(null);
   };
   
   const handleContinue = () => {
     if (currentStep === SendStep.PASTE_PSBT) {
-      // Move to confirmation step
-      setCurrentStep(SendStep.CONFIRM_TRANSACTION);
+      try {
+        // Validate and decode PSBT
+        const details = signer.decode_psbt(psbtValue);
+        setTransactionDetails(details);
+        setCurrentStep(SendStep.CONFIRM_TRANSACTION);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Invalid PSBT format');
+        return;
+      }
     } else if (currentStep === SendStep.CONFIRM_TRANSACTION) {
-      // Sign the transaction (placeholder for now)
-      const mockSignedPsbt = psbtValue + "_SIGNED"; // In a real implementation, we would use the signer
-      setSignedPsbt(mockSignedPsbt);
-      
-      // Move to completed step
-      setCurrentStep(SendStep.TRANSACTION_SIGNED);
-      
-      // Notify parent component
-      if (onSignComplete) {
-        onSignComplete(mockSignedPsbt);
+      try {
+        // Sign the transaction
+        const signedPsbt = signer.sign_psbt(psbtValue);
+        setSignedPsbt(signedPsbt.toString());
+        setCurrentStep(SendStep.TRANSACTION_SIGNED);
+        
+        // Notify parent component
+        if (onSignComplete) {
+          onSignComplete(signedPsbt.toString());
+        }
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to sign transaction');
+        return;
       }
     } else {
       // Close the modal
@@ -79,6 +96,18 @@ export default function SendConfirmModal({ onClose, onSignComplete }: SendConfir
       case SendStep.PASTE_PSBT:
         return (
           <div style={{ margin: "24px 12px" }}>
+            {error && (
+              <div style={{
+                color: "#C02F1D",
+                background: "#2A0A07",
+                padding: "12px",
+                borderRadius: "8px",
+                marginBottom: "16px",
+                fontSize: "14px",
+              }}>
+                {error}
+              </div>
+            )}
             <textarea
               value={psbtValue}
               onChange={handlePsbtChange}
@@ -100,6 +129,7 @@ export default function SendConfirmModal({ onClose, onSignComplete }: SendConfir
           </div>
         );
       case SendStep.CONFIRM_TRANSACTION:
+        if (!transactionDetails) return null;
         return (
           <div style={{
             marginTop: 16,
@@ -107,7 +137,7 @@ export default function SendConfirmModal({ onClose, onSignComplete }: SendConfir
             padding: "0 12px",
           }}>
             <p style={{ textAlign: "center" }}>
-              Send <span style={{ fontWeight: "bold" }}>{amountSats}</span> satoshis
+              Send <span style={{ fontWeight: "bold" }}>{transactionDetails.recv_amount}</span> satoshis
             </p>
             <div style={{ margin: "16px 0" }}>
               <div style={{ fontSize: 14, opacity: 0.8 }}>From:</div>
@@ -119,7 +149,7 @@ export default function SendConfirmModal({ onClose, onSignComplete }: SendConfir
                 fontFamily: "monospace",
                 wordBreak: "break-all",
               }}>
-                {sourceAddress}
+                {transactionDetails.spend_address}
               </div>
             </div>
             <div style={{ margin: "16px 0" }}>
@@ -132,10 +162,22 @@ export default function SendConfirmModal({ onClose, onSignComplete }: SendConfir
                 fontFamily: "monospace",
                 wordBreak: "break-all",
               }}>
-                {destinationAddress}
+                {transactionDetails.recv_address}
               </div>
             </div>
-            {/* Fee Information */}
+            <div style={{ margin: "16px 0" }}>
+              <div style={{ fontSize: 14, opacity: 0.8 }}>Change Address:</div>
+              <div style={{
+                padding: 8,
+                background: "#1a1200",
+                borderRadius: 6,
+                marginTop: 4,
+                fontFamily: "monospace",
+                wordBreak: "break-all",
+              }}>
+                {transactionDetails.change_address}
+              </div>
+            </div>
             <div style={{ margin: "16px 0" }}>
               <div style={{ fontSize: 14, opacity: 0.8 }}>Network Fee:</div>
               <div style={{
@@ -147,8 +189,8 @@ export default function SendConfirmModal({ onClose, onSignComplete }: SendConfir
                 display: "flex",
                 justifyContent: "space-between",
               }}>
-                <span>{feeSats} sats</span>
-                <span style={{ opacity: 0.7 }}>≈ {parseFloat(feeSats) / 100000000} BTC</span>
+                <span>{transactionDetails.tx_fee} sats</span>
+                <span style={{ opacity: 0.7 }}>≈ {transactionDetails.tx_fee / 100000000} BTC</span>
               </div>
             </div>
           </div>
