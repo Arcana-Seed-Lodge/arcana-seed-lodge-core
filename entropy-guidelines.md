@@ -68,7 +68,7 @@ Users select **4 out of 32 symbols**, each contributing 5 bits of entropy.
 | 03  | Trowel                 | 🧱    | Spreading harmony           |
 | 04  | Gavel                  | 🔨    | Order and justice           |
 | 05  | Pillar Jachin          | 🗿    | Strength                    |
-| 06  | Pillar Boaz            | 🪨    | Establishment               |
+| 06  | Bee                    | 🐝    | Wisdom and duality          |
 | 07  | Sun                    | ☀️    | Light and truth             |
 | 08  | Moon                   | 🌙    | Mystery and reflection      |
 | 09  | Skull & Crossbones     | ☠️    | Mortality                   |
@@ -85,7 +85,7 @@ Users select **4 out of 32 symbols**, each contributing 5 bits of entropy.
 | 20  | Perfect Ashlar         | 🧱    | Perfection                  |
 | 21  | 47th Problem of Euclid | 📐    | Geometry and knowledge      |
 | 22  | Scythe                 | 🔪    | Time and harvest            |
-| 23  | Hourglass              | ⏳     | Mortality’s reminder        |
+| 23  | Hourglass              | ⏳     | Mortality's reminder        |
 | 24  | Sword                  | 🗡️   | Protection                  |
 | 25  | Snake                  | 🐍    | Wisdom and duality          |
 | 26  | Turtle                 | 🐢    | Patience and resilience     |
@@ -93,7 +93,7 @@ Users select **4 out of 32 symbols**, each contributing 5 bits of entropy.
 | 28  | Turkey                 | 🦃    | Sacrifice and land          |
 | 29  | Crescent Moon          | 🌘    | Transformation              |
 | 30  | Cross                  | ✝️    | Faith and sacrifice         |
-| 31  | Bee                    | 🐝    | Repeated for dual-symbol UI |
+| 31  | Pillar Boaz            | 🪨    | Establishment               |
 
 These symbols may be replaced with your own **custom glyphs or ritual art**.
 

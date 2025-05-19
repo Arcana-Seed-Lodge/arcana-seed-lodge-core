@@ -6,7 +6,7 @@ export const SYMBOLS = [
   '🧱', // Trowel
   '🔨', // Gavel
   '🗿', // Pillar Jachin
-  '🪨', // Pillar Boaz
+  '🐝', // Bee (was Pillar Boaz)
   '☀️', // Sun
   '🌙', // Moon
   '☠️', // Skull & Crossbones
@@ -31,5 +31,5 @@ export const SYMBOLS = [
   '🦃', // Turkey
   '🌘', // Crescent Moon
   '✝️', // Cross
-  '🐝', // Bee (repeated for dual-symbol UI)
+  '🪨', // Pillar Boaz (was Bee)
 ]
