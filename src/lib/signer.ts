@@ -65,7 +65,7 @@ export class SeedSigner {
 
   get account_descriptor () {
     const mprint = this._mstr.fingerprint.toString(16).padStart(8, '0')
-    const mpath  = this._path.replace('m', '').replace('\'', 'h')
+    const mpath  = this._path.replace('m', '').replaceAll('\'', 'h')
     const desc   = `wpkh([${mprint}${mpath}]${this.account_xpub}/<0;1>/*)`
     return add_checksum(desc)
   }
