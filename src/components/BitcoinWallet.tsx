@@ -56,7 +56,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
         return "Wallet not initialized";
       }
       
-      const address = signerRef.current.spend_address;
+      const address = signerRef.current.recv_address;
       console.log("Spend address object:", address);
       
       // Get address string representation
@@ -79,7 +79,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(walletService.xpub);
+    navigator.clipboard.writeText(walletService.account_descriptor);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
@@ -379,7 +379,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
       </button>
       
       {/* QR Code Modal for xpub */}
-      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={walletService.xpub} />}
+      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={walletService.account_descriptor} />}
       
       {/* QR Code Modal for receive address */}
       {showReceiveModal && (

@@ -24,7 +24,7 @@ export class BitcoinWalletService {
         ];
         
         const seed = generate_map_seed(geohashes, symbolsToUse);
-        this.signer = new SeedSigner(seed, { network: 'regtest' });
+        this.signer = new SeedSigner(seed, {network: 'test'});
         this._xpub = this.signer.account_xpub;
       }
     } catch (error) {
@@ -35,6 +35,10 @@ export class BitcoinWalletService {
 
   get isInitialized(): boolean {
     return this.signer !== null;
+  }
+
+  get account_descriptor(): string {
+    return this.signer?.account_descriptor || "";
   }
 
   get xpub(): string {
