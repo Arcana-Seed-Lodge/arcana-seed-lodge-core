@@ -32,9 +32,10 @@ interface PSBTResult {
   tx_fee           : number
 }
 
-interface KeyInput {
+interface ChildKeyData {
   seckey : Uint8Array,
-  pubkey : Uint8Array
+  pubkey : Uint8Array,
+  pkh    : Uint8Array
 }
 
 export class SeedSigner {
@@ -91,21 +92,32 @@ export class SeedSigner {
     return this._index
   }
 
+  get_child_key (
+    account_type : 'spend' | 'change',
+    key_index    : number
+  ) : ChildKeyData | null {
+    const key = this._acct
+      .deriveChild(account_type === 'spend' ? 0 : 1)
+      .deriveChild(key_index)
+    if (!key.pubKeyHash) return null
+    const seckey = key.privateKey!
+    const pubkey = key.publicKey!
+    const pkh    = key.pubKeyHash!
+    return { seckey, pubkey, pkh }
+  }
+
   resolve_key (
     account_type : 'spend' | 'change',
     pubkey_hash  : Uint8Array
-  ) : KeyInput | null {
+  ) : ChildKeyData | null {
     assert_size(pubkey_hash, 20, 'invalid pubkey hash size')
     const target_pkh = hex.encode(pubkey_hash)
-    const type_idx  = account_type === 'spend' ? 0 : 1
     for (let i = 0; i < this.scan_limit; i++) {
-      const spend_key = this._acct.derive(`${type_idx}/${i}`)
-      if (!spend_key.pubKeyHash) continue
-      const spend_pkh = hex.encode(spend_key.pubKeyHash)
+      const spend_key = this.get_child_key(account_type, i)
+      if (!spend_key) continue
+      const spend_pkh = hex.encode(spend_key.pkh)
       if (spend_pkh === target_pkh) {
-        const seckey = spend_key.privateKey!
-        const pubkey = spend_key.publicKey!
-        return { seckey, pubkey }
+        return spend_key
       }
     }
     return null
@@ -166,7 +178,8 @@ export class SeedSigner {
     assert_exists(spend_keys, 'spending utxo is not owned by the signer')
     pdata.sign(spend_keys.seckey)
     pdata.finalize()
-    return pdata.toPSBT()
+    const signed = pdata.toPSBT()
+    return base64.encode(signed)
   }
 }
 
