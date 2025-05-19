@@ -13,7 +13,7 @@ import {
 } from './util.js'
 
 import type { BTC_NETWORK } from '@scure/btc-signer/utils.js'
-import { add_checksum } from './checksum.js'
+import { get_checksum } from './checksum.js'
 
 interface SignerConfig {
   index     : number,
@@ -64,10 +64,11 @@ export class SeedSigner {
   }
 
   get account_descriptor () {
-    const mprint = this._mstr.fingerprint.toString(16).padStart(8, '0')
-    const mpath  = this._path.replace('m', '').replaceAll('\'', 'h')
-    const desc   = `wpkh([${mprint}${mpath}]${this.account_xpub}/<0;1>/*)`
-    return add_checksum(desc)
+    const mprint   = this._mstr.fingerprint.toString(16).padStart(8, '0')
+    const mpath    = this._path.replace('m', '').replaceAll('\'', 'h')
+    const desc     = `wpkh([${mprint}${mpath}]${this.account_xpub}/<0;1>/*)`
+    const checksum = get_checksum(desc)
+    return `${desc}#${checksum}`
   }
 
   get scan_limit () {
