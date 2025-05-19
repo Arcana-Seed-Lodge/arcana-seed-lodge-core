@@ -201,141 +201,149 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
   return (
     <div
       style={{
-        minHeight: "100vh",
-        width: "100vw",
         background: "#181406",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        boxSizing: "border-box",
-        paddingLeft: "20vw",
-        paddingRight: "20vw",
-        userSelect: "none",
-        pointerEvents: "none",
-        position: "relative", // Added for back arrow positioning
+        minHeight: "100vh",
+        minWidth: "100vw",
+        width: "100vw",
+        height: "100vh",
+        overflow: "auto",
+        position: "relative",
       }}
     >
-      {/* Back Arrow */}
-      <button
-        onClick={handleBackToIntro}
-        aria-label="Back to Intro"
-        style={{
-          position: "absolute",
-          top: 24,
-          left: 24,
-          background: "none",
-          border: "none",
-          color: ORANGE,
-          cursor: "pointer",
-          zIndex: 2,
-          padding: 0,
-          display: "flex",
-          alignItems: "center",
-          pointerEvents: "auto",
-        }}
-      >
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={ORANGE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-      
-      <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
-      <img
-        key={displayedSlide}
-        src={current.image}
-        alt="story"
-        style={{
-          maxHeight: 320,
-          maxWidth: 320,
-          width: "auto",
-          height: "auto",
-          marginBottom: 32,
-          display: "block",
-          borderRadius: 8,
-          opacity: imgVisible ? 1 : 0,
-          transition: `opacity ${IMAGE_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-        draggable={false}
-      />
       <div
         style={{
-          color: ORANGE,
-          fontSize: 20,
-          textAlign: "center",
-          marginBottom: 24,
-          fontFamily: "'Cinzel', serif",
-          fontWeight: 700,
-          minHeight: 60,
-          userSelect: "none",
-          pointerEvents: "none",
+          margin: "0 auto",
+          maxWidth: 1200,
+          minHeight: "100vh",
+          padding: 24,
         }}
-        key={`text-container-${displayedSlide}`}
       >
-        {current.text.map((line, i) => (
-          <div
-            key={i}
-            style={{
-              marginTop: i === 0 ? 0 : 16,
-              fontStyle: i > 0 ? "italic" : undefined,
-              opacity: textVisible[i] ? 1 : 0,
-              transform: `translateX(${textVisible[i] ? '0' : '-20px'})`,
-              transition: `opacity ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1), transform ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
-              willChange: 'transform, opacity',
-            }}
-          >
-            {line}
-          </div>
-        ))}
-      </div>
-      <div style={{ display: "flex", gap: 16, justifyContent: "center", pointerEvents: "auto", userSelect: "auto" }}>
+        {/* Back Arrow */}
         <button
+          onClick={handleBackToIntro}
+          aria-label="Back to Intro"
           style={{
-            background: "#181406",
-            color: ORANGE,
-            border: `2px solid ${ORANGE}`,
-            borderRadius: 999,
-            padding: "10px 32px",
-            fontSize: 16,
-            fontWeight: 700,
-            letterSpacing: 1.1,
-            cursor: isAnimating ? "not-allowed" : "pointer",
-            minWidth: 80,
-            fontFamily: "'Cinzel', serif",
-            transition: "background 0.2s, color 0.2s",
-            opacity: isAnimating ? 0.5 : 1,
-          }}
-          onClick={handleBack}
-          disabled={isAnimating}
-        >
-          Back
-        </button>
-        <button
-          style={{
-            background: ORANGE,
-            color: "#181406",
+            position: "absolute",
+            top: 24,
+            left: 24,
+            background: "none",
             border: "none",
-            borderRadius: 12,
-            padding: "8px 28px",
-            fontSize: 16,
-            fontWeight: 700,
-            letterSpacing: 1.1,
-            cursor: isAnimating ? "not-allowed" : "pointer",
-            minWidth: 80,
-            fontFamily: "'Cinzel', serif",
-            opacity: isAnimating ? 0.5 : 1,
+            color: ORANGE,
+            cursor: "pointer",
+            zIndex: 2,
+            padding: 0,
+            display: "flex",
+            alignItems: "center",
+            pointerEvents: "auto",
           }}
-          onClick={handleNext}
-          disabled={(slide === slides.length - 1 && !onComplete) || isAnimating}
         >
-          {slide === slides.length - 1 && onComplete 
-            ? storyPart === StoryPart.PART1 
-              ? "Begin Ritual" 
-              : "Complete" 
-            : "Next"}
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={ORANGE} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
         </button>
+        
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+        {/* Centered Image */}
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
+          <img
+            key={displayedSlide}
+            src={current.image}
+            alt="story"
+            style={{
+              maxHeight: 320,
+              maxWidth: 320,
+              width: "auto",
+              height: "auto",
+              marginBottom: 32,
+              display: "block",
+              borderRadius: 8,
+              opacity: imgVisible ? 1 : 0,
+              transition: `opacity ${IMAGE_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
+              userSelect: "none",
+              pointerEvents: "none",
+            }}
+            draggable={false}
+          />
+        </div>
+        <div
+          style={{
+            color: ORANGE,
+            fontSize: 20,
+            textAlign: "center",
+            marginBottom: 24,
+            fontFamily: "'Cinzel', serif",
+            fontWeight: 700,
+            minHeight: 60,
+            userSelect: "none",
+            pointerEvents: "none",
+            paddingLeft: '15vw',
+            paddingRight: '15vw',
+          }}
+          key={`text-container-${displayedSlide}`}
+        >
+          {current.text.map((line, i) => (
+            <div
+              key={i}
+              style={{
+                marginTop: i === 0 ? 0 : 16,
+                fontStyle: i > 0 ? "italic" : undefined,
+                opacity: textVisible[i] ? 1 : 0,
+                transform: `translateX(${textVisible[i] ? '0' : '-20px'})`,
+                transition: `opacity ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1), transform ${TEXT_FADE_DURATION}ms cubic-bezier(.4,0,.2,1)`,
+                willChange: 'transform, opacity',
+              }}
+            >
+              {line}
+            </div>
+          ))}
+        </div>
+        <div style={{ display: "flex", gap: 16, justifyContent: "center", pointerEvents: "auto", userSelect: "auto" }}>
+          <button
+            style={{
+              background: "#181406",
+              color: ORANGE,
+              border: `2px solid ${ORANGE}`,
+              borderRadius: 999,
+              padding: "10px 32px",
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: 1.1,
+              cursor: isAnimating ? "not-allowed" : "pointer",
+              minWidth: 80,
+              fontFamily: "'Cinzel', serif",
+              transition: "background 0.2s, color 0.2s",
+              opacity: isAnimating ? 0.5 : 1,
+            }}
+            onClick={handleBack}
+            disabled={isAnimating}
+          >
+            Back
+          </button>
+          <button
+            style={{
+              background: ORANGE,
+              color: "#181406",
+              border: "none",
+              borderRadius: 12,
+              padding: "8px 28px",
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: 1.1,
+              cursor: isAnimating ? "not-allowed" : "pointer",
+              minWidth: 80,
+              fontFamily: "'Cinzel', serif",
+              opacity: isAnimating ? 0.5 : 1,
+            }}
+            onClick={handleNext}
+            disabled={(slide === slides.length - 1 && !onComplete) || isAnimating}
+          >
+            {slide === slides.length - 1 && onComplete 
+              ? storyPart === StoryPart.PART1 
+                ? "Begin Ritual" 
+                : "Complete" 
+              : "Next"}
+          </button>
+        </div>
       </div>
     </div>
   );

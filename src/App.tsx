@@ -123,35 +123,56 @@ function App() {
   }
 
   return (
-    <div style={{ background: "#181406", minHeight: "100vh", width: "100vw" }}>
-      {screen === Screen.MAP && (
-        <MapPage 
-          onContinue={handleMapComplete} 
-          onBack={handleMapBack}
-        />
-      )}
-      {screen === Screen.INTRO && (
-        <IntroScreen 
-          onSkip={() => {
-            setMapEntryPoint(MapEntryPoint.FROM_INTRO);
-            setScreen(Screen.MAP);
-          }} 
-          onEnterStory={() => {
-            setStoryPart(StoryPart.PART1);
-            setScreen(Screen.STORY);
-          }} 
-        />
-      )}
-      {screen === Screen.STORY && (
-        <StoryScreen 
-          onBack={handleBackToIntro} 
-          onComplete={handleStoryComplete}
-          storyPart={storyPart}
-        />
-      )}
-      {screen === Screen.WALLET && (
-        <BitcoinWallet onBack={handleBackToIntro} />
-      )}
+    <div
+      style={{
+        background: "#181406",
+        minHeight: "100vh",
+        minWidth: "100vw",
+        width: "100vw",
+        height: "100vh",
+        overflow: "auto",
+        position: "relative",
+      }}
+    >
+      <div
+        style={{
+          margin: "0 auto",
+          minHeight: "100vh",
+          minWidth: "100vw",
+          width: "100vw",
+          height: "100vh",
+          padding: 0,
+        }}
+      >
+        {screen === Screen.MAP && (
+          <MapPage 
+            onContinue={handleMapComplete} 
+            onBack={handleMapBack}
+          />
+        )}
+        {screen === Screen.INTRO && (
+          <IntroScreen 
+            onSkip={() => {
+              setMapEntryPoint(MapEntryPoint.FROM_INTRO);
+              setScreen(Screen.MAP);
+            }} 
+            onEnterStory={() => {
+              setStoryPart(StoryPart.PART1);
+              setScreen(Screen.STORY);
+            }} 
+          />
+        )}
+        {screen === Screen.STORY && (
+          <StoryScreen 
+            onBack={handleBackToIntro} 
+            onComplete={handleStoryComplete}
+            storyPart={storyPart}
+          />
+        )}
+        {screen === Screen.WALLET && (
+          <BitcoinWallet onBack={handleBackToIntro} />
+        )}
+      </div>
     </div>
   );
 }
