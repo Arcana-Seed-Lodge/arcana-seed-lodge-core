@@ -100,6 +100,11 @@ function App() {
     }
   };
 
+  // Function to handle back to intro from any screen
+  const handleBackToIntro = () => {
+    setScreen(Screen.INTRO);
+  };
+
   if (isLoading) {
     return (
       <div style={{
@@ -139,13 +144,13 @@ function App() {
       )}
       {screen === Screen.STORY && (
         <StoryScreen 
-          onBack={() => setScreen(Screen.INTRO)} 
+          onBack={handleBackToIntro} 
           onComplete={handleStoryComplete}
           storyPart={storyPart}
         />
       )}
       {screen === Screen.WALLET && (
-        <BitcoinWallet onBack={() => setScreen(Screen.INTRO)} />
+        <BitcoinWallet onBack={handleBackToIntro} />
       )}
     </div>
   );

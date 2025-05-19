@@ -59,7 +59,7 @@ const part1Slides = [
     image: "/storyboard-images/storyboard-part6-image.png",
     text: [
       " You are blindfolded and taken in a horse-drawn carriage through mist and moonlight—",
-      " Dialogues are riddles. The terrain echoes Charleston's marshlands and ruins."
+      " Dialogues are riddles. The terrain echoes the countryside's marshlands and ruins."
     ],
   },
   {
@@ -83,10 +83,18 @@ const part1Slides = [
 // Define placeholder slides for Part 2
 const part2Slides = [
   {
-    image: "/arcana-logo.jpeg", // Using the app logo as a placeholder image
+    image: "/storyboard-images/storyboard-part9-image.png",
     text: [
-      "Placeholder for Part 2",
-      "This will be replaced with actual content in the future."
+      "Brother Flint strikes the gavel. A final ritual begins.",
+      "The gold you carried shall vanish. It shall pass through the Portalis Aureum—the Golden Portal—and emerge as a Cipher known only to blood and earth.",
+      "Recite the cipher, burn the map, bury the coin."
+    ],
+  },
+  {
+    image: "/storyboard-images/storyboard-part10-image.png",
+    text: [
+      "You leave Arcana Seed Lodge in silence. Your gold no longer exists in this world. But it is not lost.",
+      "It awaits your bloodline—if they too can walk the path you chose."
     ],
   },
 ];
@@ -162,7 +170,19 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
   const handleBack = () => {
     if (isAnimating) return;
     
-    // Always call onBack to return to the intro screen
+    if (slide > 0) {
+      // If not on the first slide, go to previous slide
+      setTextVisible(new Array(current.text.length).fill(false)); // Immediately reset text visibility
+      setSlide((s) => s - 1);
+      goToSlide(slide - 1);
+    } else {
+      // If on the first slide, go back to intro
+      onBack();
+    }
+  };
+
+  const handleBackToIntro = () => {
+    // Always go back to intro screen regardless of current slide
     onBack();
   };
 
@@ -198,8 +218,8 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
     >
       {/* Back Arrow */}
       <button
-        onClick={handleBack}
-        aria-label="Back"
+        onClick={handleBackToIntro}
+        aria-label="Back to Intro"
         style={{
           position: "absolute",
           top: 24,
@@ -287,7 +307,7 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
             transition: "background 0.2s, color 0.2s",
             opacity: isAnimating ? 0.5 : 1,
           }}
-          onClick={onBack}
+          onClick={handleBack}
           disabled={isAnimating}
         >
           Back
