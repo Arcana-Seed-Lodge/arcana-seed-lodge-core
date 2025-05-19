@@ -297,53 +297,56 @@ export default function StoryScreen({ onBack, onComplete, storyPart = StoryPart.
             </div>
           ))}
         </div>
-        <div style={{ display: "flex", gap: 16, justifyContent: "center", pointerEvents: "auto", userSelect: "auto" }}>
-          <button
-            style={{
-              background: "#181406",
-              color: ORANGE,
-              border: `2px solid ${ORANGE}`,
-              borderRadius: 999,
-              padding: "10px 32px",
-              fontSize: 16,
-              fontWeight: 700,
-              letterSpacing: 1.1,
-              cursor: isAnimating ? "not-allowed" : "pointer",
-              minWidth: 80,
-              fontFamily: "'Cinzel', serif",
-              transition: "background 0.2s, color 0.2s",
-              opacity: isAnimating ? 0.5 : 1,
-            }}
-            onClick={handleBack}
-            disabled={isAnimating}
-          >
-            Back
-          </button>
-          <button
-            style={{
-              background: ORANGE,
-              color: "#181406",
-              border: "none",
-              borderRadius: 12,
-              padding: "8px 28px",
-              fontSize: 16,
-              fontWeight: 700,
-              letterSpacing: 1.1,
-              cursor: isAnimating ? "not-allowed" : "pointer",
-              minWidth: 80,
-              fontFamily: "'Cinzel', serif",
-              opacity: isAnimating ? 0.5 : 1,
-            }}
-            onClick={handleNext}
-            disabled={(slide === slides.length - 1 && !onComplete) || isAnimating}
-          >
-            {slide === slides.length - 1 && onComplete 
-              ? storyPart === StoryPart.PART1 
-                ? "Begin Ritual" 
-                : "Complete" 
-              : "Next"}
-          </button>
-        </div>
+        {/* Only show navigation buttons when the image is visible */}
+        {imgVisible && (
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", pointerEvents: "auto", userSelect: "auto" }}>
+            <button
+              style={{
+                background: "#181406",
+                color: ORANGE,
+                border: `2px solid ${ORANGE}`,
+                borderRadius: 999,
+                padding: "10px 32px",
+                fontSize: 16,
+                fontWeight: 700,
+                letterSpacing: 1.1,
+                cursor: isAnimating ? "not-allowed" : "pointer",
+                minWidth: 80,
+                fontFamily: "'Cinzel', serif",
+                transition: "background 0.2s, color 0.2s",
+                opacity: isAnimating ? 0.5 : 1,
+              }}
+              onClick={handleBack}
+              disabled={isAnimating}
+            >
+              Back
+            </button>
+            <button
+              style={{
+                background: ORANGE,
+                color: "#181406",
+                border: "none",
+                borderRadius: 12,
+                padding: "8px 28px",
+                fontSize: 16,
+                fontWeight: 700,
+                letterSpacing: 1.1,
+                cursor: isAnimating ? "not-allowed" : "pointer",
+                minWidth: 80,
+                fontFamily: "'Cinzel', serif",
+                opacity: isAnimating ? 0.5 : 1,
+              }}
+              onClick={handleNext}
+              disabled={(slide === slides.length - 1 && !onComplete) || isAnimating}
+            >
+              {slide === slides.length - 1 && onComplete 
+                ? storyPart === StoryPart.PART1 
+                  ? "Begin Ritual" 
+                  : "Complete" 
+                : "Next"}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
