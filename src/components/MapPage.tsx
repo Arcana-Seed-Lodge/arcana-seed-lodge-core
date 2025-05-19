@@ -7,6 +7,7 @@ import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { StorageService } from '../services/StorageService';
 import { SYMBOLS } from '../symbols';
 import { DEBUG, TEST_GEOHASHES, TEST_SYMBOLS } from './MapComponent';
+import InfoModal from './InfoModal';
 
 export interface GeohashMarker {
   lng: string;
@@ -41,6 +42,7 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
   const [pageState, setPageState] = useState<MapPageState>(MapPageState.SELECTING_GEOHASHES);
   const mapRef = useRef<MapComponentRef>(null) as MutableRefObject<MapComponentRef | null>;
   const storageService = useRef(StorageService.getInstance());
+  const [showInfoModal, setShowInfoModal] = useState(true);
 
   const mapTilerKey = 'lhlGVte7aCUtTfVIhH9R';
 
@@ -215,6 +217,9 @@ export default function MapPage({ onContinue, onSkip, onBack }: MapPageProps) {
         position: 'relative', // For positioning the back button
       }}
     >
+      <InfoModal open={showInfoModal} onClose={() => setShowInfoModal(false)}>
+        Select 6 distinct locations to encode your seed phrase
+      </InfoModal>
       {/* Back Arrow */}
       {onBack && (
         <button

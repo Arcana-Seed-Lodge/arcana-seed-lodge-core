@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SYMBOLS } from '../symbols';
+import InfoModal from './InfoModal';
 
 interface SymbolSelectionComponentProps {
   onSymbolsSelected: (selectedSymbols: string[]) => void;
@@ -13,6 +14,7 @@ const SymbolSelectionComponent: React.FC<SymbolSelectionComponentProps> = ({
   // Store selected indexes with their positions
   const [selectedSequence, setSelectedSequence] = useState<number[]>([]);
   const [imagesExist, setImagesExist] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(true);
   
   // Constants for styling
   const ORANGE = "#F98029";
@@ -107,6 +109,9 @@ const SymbolSelectionComponent: React.FC<SymbolSelectionComponentProps> = ({
         overflowX: 'hidden',
       }}
     >
+      <InfoModal open={showInfoModal} onClose={() => setShowInfoModal(false)}>
+        Select any combination of 4 symbols for your passphrase
+      </InfoModal>
       {/* Back Arrow */}
       {onBack && (
         <button
