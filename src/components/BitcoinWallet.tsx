@@ -79,7 +79,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(walletService.account_descriptor);
+    navigator.clipboard.writeText(walletService.xpub);
     setCopied(true);
     setTimeout(() => setCopied(false), 1200);
   };
@@ -378,7 +378,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
       </button>
       
       {/* QR Code Modal for xpub */}
-      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={walletService.account_descriptor} />}
+      {showQRModal && <QRCodeModal onClose={handleCloseQR} content={walletService.xpub} />}
       
       {/* QR Code Modal for receive address */}
       {showReceiveModal && (

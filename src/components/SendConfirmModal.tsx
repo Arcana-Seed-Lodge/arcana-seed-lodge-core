@@ -27,10 +27,23 @@ export default function SendConfirmModal({ onClose, onSignComplete, signer }: Se
     tx_fee: number;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
   
   const handlePsbtChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPsbtValue(e.target.value);
     setError(null);
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const base64String = (reader.result as string).split(',')[1];
+        setPsbtValue(base64String);
+      };
+      reader.readAsDataURL(file);
+    }
   };
   
   const handleContinue = () => {
@@ -127,6 +140,30 @@ export default function SendConfirmModal({ onClose, onSignComplete, signer }: Se
                 paddingRight: 0,
               }}
             />
+            <input
+              type="file"
+              accept=".psbt"
+              onChange={handleFileChange}
+              style={{
+                display: "none",
+              }}
+              id="fileInput"
+            />
+            <button
+              onClick={() => document.getElementById('fileInput')?.click()}
+              style={{
+                marginTop: 12,
+                background: "#F98029",
+                color: "#181406",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 16px",
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              Import
+            </button>
           </div>
         );
       case SendStep.CONFIRM_TRANSACTION:
@@ -221,6 +258,59 @@ export default function SendConfirmModal({ onClose, onSignComplete, signer }: Se
             }}>
               {signedPsbt}
             </div>
+            <button
+              onClick={() => {
+                navigator.clipboard.writeText(signedPsbt);
+                setCopySuccess(true);
+                setTimeout(() => setCopySuccess(false), 2000);
+              }}
+              style={{
+                marginTop: 12,
+                background: "#F98029",
+                color: "#181406",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 16px",
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              Copy
+            </button>
+            {copySuccess && (
+              <div style={{
+                marginTop: 8,
+                color: "#F98029",
+                fontSize: 12,
+                textShadow: "0 0 6px #F9802999",
+              }}>
+                Copied to clipboard!
+              </div>
+            )}
+            <button
+              onClick={() => {
+                const blob = new Blob([signedPsbt], { type: 'application/octet-stream' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'signed_transaction.psbt';
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+              style={{
+                marginTop: 12,
+                marginLeft: 8,
+                background: "#F98029",
+                color: "#181406",
+                border: "none",
+                borderRadius: 8,
+                padding: "8px 16px",
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              Download
+            </button>
           </div>
         );
       default:
@@ -248,6 +338,8 @@ export default function SendConfirmModal({ onClose, onSignComplete, signer }: Se
         position: "relative",
         maxWidth: "90%",
         width: 500,
+        maxHeight: "75%",
+        overflowY: "auto",
         boxShadow: "0 0 24px #F9802966",
         border: "1px solid #F98029",
         color: "#F98029",
