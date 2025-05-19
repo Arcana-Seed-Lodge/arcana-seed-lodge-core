@@ -135,7 +135,7 @@ export class SeedSigner {
     const change_vout = pdata.getOutput(1)
     const spend_utxo  = spend_vin.witnessUtxo
     assert_exists(spend_utxo, 'spending utxo is not defined for the spend input')
-    const spend_pkh   = spend_utxo.script.slice(2)
+    const spend_pkh   = (spend_utxo.script as Uint8Array).slice(2)
     assert_size(spend_pkh, 20,  'unable to parse spending pubkey hash')
     const spend_keys = this.resolve_key('spend', spend_pkh)
     assert_exists(spend_keys, 'spending utxo is not owned by the signer')
@@ -173,7 +173,7 @@ export class SeedSigner {
     const spend_vin  = pdata.getInput(0)
     const spend_utxo = spend_vin.witnessUtxo
     assert_exists(spend_utxo, 'spending utxo is not defined for the spend input')
-    const spend_pkh  = spend_utxo.script.slice(2)
+    const spend_pkh  = (spend_utxo.script as Uint8Array).slice(2)
     const spend_keys = this.resolve_key('spend', spend_pkh)
     assert_exists(spend_keys, 'spending utxo is not owned by the signer')
     pdata.sign(spend_keys.seckey)
