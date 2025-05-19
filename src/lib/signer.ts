@@ -1,7 +1,8 @@
-import { HDKey }       from '@scure/bip32'
-import { base64, hex } from '@scure/base'
-import { hexToBytes }  from '@noble/hashes/utils.js'
-import { HD_DATA }     from '../const.js'
+import { HDKey }        from '@scure/bip32'
+import { base64, hex }  from '@scure/base'
+import { hexToBytes }   from '@noble/hashes/utils.js'
+import { get_checksum } from './checksum.js'
+import { HD_DATA }      from '../const.js'
 
 import { Address, p2wpkh, Transaction } from '@scure/btc-signer'
 
@@ -13,7 +14,6 @@ import {
 } from './util.js'
 
 import type { BTC_NETWORK } from '@scure/btc-signer/utils.js'
-import { add_checksum } from './checksum.js'
 
 interface SignerConfig {
   index     : number,
@@ -64,10 +64,11 @@ export class SeedSigner {
   }
 
   get account_descriptor () {
-    const mprint = this._mstr.fingerprint.toString(16).padStart(8, '0')
-    const mpath  = this._path.replace('m', '').replaceAll('\'', 'h')
-    const desc   = `wpkh([${mprint}${mpath}]${this.account_xpub}/<0;1>/*)`
-    return add_checksum(desc)
+    const mprint   = this._mstr.fingerprint.toString(16).padStart(8, '0')
+    const mpath    = this._path.replace('m', '').replaceAll('\'', 'h')
+    const desc     = `wpkh([${mprint}${mpath}]${this.account_xpub}/<0;1>/*)`
+    const checksum = get_checksum(desc)
+    return `${desc}#${checksum}`
   }
 
   get scan_limit () {
@@ -79,7 +80,7 @@ export class SeedSigner {
       // Derive from master seed to ensure proper path format
       const xprv = this._mstr.derive(`${this._path}/0/${this._index}`)
       assert_exists(xprv.publicKey)
-      return p2wpkh(xprv.publicKey)
+      return p2wpkh(xprv.publicKey, this._network)
     } catch (error) {
       console.error("Error in recv_address:", error);
       throw error;
