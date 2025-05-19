@@ -18,7 +18,7 @@ import type { BTC_NETWORK } from '@scure/btc-signer/utils.js'
 interface SignerConfig {
   index     : number,
   path      : string,
-  network   : 'main' | 'test',
+  network   : 'main' | 'test' | 'regtest',
   gap_limit : number
 }
 
@@ -181,10 +181,13 @@ function decode_psbt_str (psbt : string) : Uint8Array {
 }
 
 function parse_network (network : string) : BTC_NETWORK {
-  if (network === 'main') {
-    return HD_DATA.main
-  } else if (network === 'test') {
-    return HD_DATA.test
+  switch (network) {
+    case 'main':
+      return HD_DATA.main
+    case 'test':
+      return HD_DATA.test
+    case 'regtest':
+      return HD_DATA.regtest
   }
   throw new Error('invalid network')
 }

@@ -1,5 +1,3 @@
-import { BTC_NETWORK } from '@scure/btc-signer/utils'
-
 export const HD_DATA = {
   main : {
     bech32: 'bc',
@@ -9,6 +7,12 @@ export const HD_DATA = {
   },
   test : {
     bech32: 'tb',
+    pubKeyHash: 0x6f,
+    scriptHash: 0xc4,
+    wif: 0xef,
+  },
+  regtest : {
+    bech32: 'bcrt',
     pubKeyHash: 0x6f,
     scriptHash: 0xc4,
     wif: 0xef,
