@@ -38,6 +38,7 @@ export default function SendConfirmModal({ onClose, onSignComplete, signer }: Se
       try {
         // Validate and decode PSBT
         const details = signer.decode_psbt(psbtValue);
+        console.log('[DEV] Transaction details:', details);
         setTransactionDetails(details);
         setCurrentStep(SendStep.CONFIRM_TRANSACTION);
       } catch (error) {
