@@ -44,7 +44,14 @@ function App() {
     async function checkStoredWallet() {
       try {
         const storageService = StorageService.getInstance();
-        const hasWallet = await storageService.hasStoredWallet();
+        const geohashes = await storageService.getGeohashes();
+        const symbols = await storageService.getSymbols();
+        
+        // Only set hasWallet to true if both geohashes and symbols are available
+        const hasWallet = geohashes && symbols && 
+                          Array.isArray(geohashes) && geohashes.length > 0 &&
+                          Array.isArray(symbols) && symbols.length > 0;
+                          
         setHasBitcoinPK(hasWallet);
         
         if (hasWallet) {

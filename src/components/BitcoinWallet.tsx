@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import QRCodeModal, { PresentationContext } from "./QRCodeModal";
 import SendConfirmModal from "./SendConfirmModal";
 import DisclaimerModal from "./DisclaimerModal";
+import ConfirmDeleteModal from "./ConfirmDeleteModal";
 import { BitcoinWalletService } from "../services/BitcoinWalletService";
+import { StorageService } from "../services/StorageService";
 
 // Add prop type for onBack
 interface BitcoinWalletProps {
@@ -15,6 +17,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
   const [showReceiveModal, setShowReceiveModal] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showDisclaimerModal, setShowDisclaimerModal] = useState(true);
+  const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [currentReceiveAddress, setCurrentReceiveAddress] = useState('');
   const [signedTransaction, setSignedTransaction] = useState<string | null>(null);
   const [walletService] = useState(new BitcoinWalletService());
@@ -144,6 +147,25 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
     setShowDisclaimerModal(false);
   };
 
+  const handleShowDeleteConfirm = () => {
+    setShowDeleteConfirmModal(true);
+  };
+
+  const handleCloseDeleteConfirm = () => {
+    setShowDeleteConfirmModal(false);
+  };
+
+  const handleDeleteSeed = async () => {
+    try {
+      const storageService = StorageService.getInstance();
+      await storageService.clearWalletData();
+      // Call onBack to navigate back to IntroScreen
+      if (onBack) onBack();
+    } catch (error) {
+      console.error("Error deleting wallet data:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <div style={{
@@ -206,7 +228,7 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
           width: "auto",
           maxWidth: 480,
           height: "auto",
-          maxHeight: 270,
+          maxHeight: 220,
           marginBottom: 12,
           boxShadow: "0 0 24px #F9802933",
         }}
@@ -294,8 +316,8 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
       </div>
       <div style={{
         display: "flex",
-        gap: 32,
-        marginBottom: 32,
+        gap: 16,
+        marginBottom: 16,
       }}>
         {/* Send Button */}
         <button 
@@ -353,6 +375,33 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
         </button>
       </div>
       
+      {/* Add Delete Seed button */}
+      <button
+        onClick={handleShowDeleteConfirm}
+        style={{
+          background: "#2A0A07",
+          border: "2px solid #C02F1D",
+          borderRadius: 8,
+          color: "#C02F1D",
+          padding: "10px 20px",
+          marginTop: 40,
+          fontSize: 16,
+          fontWeight: 600,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+        }}
+      >
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C02F1D" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 6h18"></path>
+          <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+        Delete Seed
+      </button>
+      
       {/* QR Code Modal for xpub */}
       {showQRModal && <QRCodeModal onClose={handleCloseQR} content={walletService.xpub} />}
       
@@ -379,6 +428,14 @@ export default function BitcoinWallet({ onBack }: BitcoinWalletProps) {
       {showDisclaimerModal && (
         <DisclaimerModal 
           onClose={handleCloseDisclaimer} 
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirmModal && (
+        <ConfirmDeleteModal
+          onClose={handleCloseDeleteConfirm}
+          onConfirm={handleDeleteSeed}
         />
       )}
     </div>

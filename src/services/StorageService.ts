@@ -144,8 +144,20 @@ export class StorageService {
     return await this.store.get('symbols') as any[] || [];
   }
 
+  async clearWalletData(): Promise<void> {
+    await this.store.set('geohashes', null);
+    await this.store.set('symbols', null);
+    if (this.store.save) {
+      await this.store.save();
+    }
+  }
+
   async hasStoredWallet(): Promise<boolean> {
     const geohashes = await this.getGeohashes();
-    return geohashes.length > 0;
+    const symbols = await this.getSymbols();
+    
+    return geohashes && symbols && 
+           Array.isArray(geohashes) && geohashes.length > 0 &&
+           Array.isArray(symbols) && symbols.length > 0;
   }
 } 
