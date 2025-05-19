@@ -1,5 +1,5 @@
 import { HDKey }         from '@scure/bip32'
-import { p2pkh }         from '@scure/btc-signer'
+import { p2wpkh }         from '@scure/btc-signer'
 import { assert_exists } from './util.js'
 
 interface SignerConfig {
@@ -39,7 +39,7 @@ export class SeedSigner {
       // Derive from master seed to ensure proper path format
       const xprv = this._mstr.derive(`${this._path}/0/${this._index}`)
       assert_exists(xprv.publicKey)
-      return p2pkh(xprv.publicKey)
+      return p2wpkh(xprv.publicKey)
     } catch (error) {
       console.error("Error in spend_address:", error);
       throw error;
@@ -53,7 +53,7 @@ export class SeedSigner {
       // Derive from master seed to ensure proper path format
       const xprv = this._mstr.derive(`${this._path}/1/${this._index}`)
       assert_exists(xprv.publicKey)
-      return p2pkh(xprv.publicKey)
+      return p2wpkh(xprv.publicKey)
     } catch (error) {
       console.error("Error in change_address:", error);
       throw error;
