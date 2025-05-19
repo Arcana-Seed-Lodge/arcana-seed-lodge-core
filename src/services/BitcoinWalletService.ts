@@ -25,6 +25,7 @@ export class BitcoinWalletService {
         
         const seed = generate_map_seed(geohashes, symbolsToUse);
         this.signer = new SeedSigner(seed, {network: 'test'});
+        console.log('[DEV] Signer:', this.signer);
         this._xpub = this.signer.account_xpub;
       }
     } catch (error) {
