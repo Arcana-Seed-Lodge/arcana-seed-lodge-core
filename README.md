@@ -1,4 +1,4 @@
-🌍🗝️ Arcana Seed Lodge
+# 🌍🗝️ Arcana Seed Lodge
 A Bitcoin wallet experience shaped by memory, mystery, and map-based entropy.
 
 ![image](https://github.com/user-attachments/assets/4051caf8-dedb-496e-b251-1d541535dba8)
@@ -70,7 +70,9 @@ What can Jesse James teach us about Bitcoin self-custody?
 
 We were inspired by tales of hidden treasure, outlaw cryptography, and Masonic secrecy. Just like the Knights of the Golden Circle buried gold with maps and riddles, Arcana Seed Lodge invites you to do the same—only now, with Bitcoin.
 
-🧪 Demo & Source
-🔗 GitHub Repo
+🧪 Test Results:
+Successfully broadcast a transaction signed by Arcana here: https://mempool.space/tx/cdfe30d27a13368936afa91a75f0bc2b669a01ddb67f9885bf334cd5ff2207bf
+From the test xpub xpub6CFJPLavEUpbmhSsihixZ3BLuWiALj1tyt59kW8mNV44j5VYjXU9S9AzAFcqwvZXZhemHFbFhzviF7rgvhcT3sBWEDZE9g2i7rDb3LjjeES  (xprv hard coded and accesible by pressing "skip" on the MapPage.tsx)
+
 
 🎥 Demo Video: https://www.youtube.com/watch?v=9HRkEo8TK3M
