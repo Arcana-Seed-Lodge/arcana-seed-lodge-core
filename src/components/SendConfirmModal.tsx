@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { SeedSigner } from "../lib/signer";
+import { save } from '@tauri-apps/api/dialog';
+import { writeTextFile } from '@tauri-apps/api/fs';
 
 interface SendConfirmModalProps {
   onClose: () => void;
@@ -288,14 +290,25 @@ export default function SendConfirmModal({ onClose, onSignComplete, signer }: Se
               </div>
             )}
             <button
-              onClick={() => {
-                const blob = new Blob([signedPsbt], { type: 'application/octet-stream' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'signed_transaction.psbt';
-                a.click();
-                URL.revokeObjectURL(url);
+              onClick={async () => {
+                try {
+                  // Use Tauri's dialog API to get a file path from the user
+                  const filePath = await save({
+                    filters: [{
+                      name: 'PSBT Files',
+                      extensions: ['psbt']
+                    }],
+                    defaultPath: 'signed_transaction.psbt'
+                  });
+                  
+                  // If user didn't cancel the dialog
+                  if (filePath) {
+                    // Write the signed PSBT to the file
+                    await writeTextFile(filePath, signedPsbt);
+                  }
+                } catch (error) {
+                  console.error('Error saving PSBT file:', error);
+                }
               }}
               style={{
                 marginTop: 12,
